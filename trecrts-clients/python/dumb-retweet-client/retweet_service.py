@@ -3,11 +3,11 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 import requests
 
-consumer_key="MbOgGx580do3ZXLRgrBOyhQIB"
-consumer_secret="LglS7nQ5VtuZqZrBOEQRQSFP9HPsW2Zn5jxKqH3eg6KzaFiuS6"
+consumer_key=""
+consumer_secret=""
 
-access_token="124917841-o2EejsyfT9lrIBR0c2Ht30htdDBupoAo9LJvI8kg"
-access_token_secret="5aiq4nr2i9Jdn3xktKhMQF13rSPR7zglwtjs3VzDPKVu8"
+access_token=""
+access_token_secret=""
 seen_tweets = set()
 
 class RetweetListener(StreamListener):
