@@ -59,24 +59,14 @@ var app = {
         console.log(window.plugins)
         var pushNotification = window.plugins.pushNotification;
         console.log(pushNotification)
-        pushNotification.register(app.successHandler, app.errorHandler,{"senderID":"412241308284","ecb":"app.onNotificationGCM"});
-/*        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
-
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');*/
-        //twttr.ready(function(twttr){
-            //twttr.widgets.createTweet("633740686290874369",document.getElementById('tweet'),{});
-            //$('#tweet').append("Is this tweet relevant to the information need? <button class='judge rel'>&#10004</button><button class='judge nrel'>&#10008</button>");
-        //});
+        pushNotification.register(app.successHandler, app.errorHandler,{"senderID":"","ecb":"app.onNotificationGCM"});
         console.log('Received Event: ' + id);
     },
     removeTweet : function(tweetid,rel){
         $("#div"+tweetid).remove();
         $.ajax({
             type: "POST",
-            url: "http://lab.roegiest.com:33334/judge/"+tweetid+"/"+rel
+            url: "http://XXX/judge/"+tweetid+"/"+rel
         });
     },
     addTweet : function (tweetid){
@@ -96,14 +86,8 @@ var app = {
                 class: "judge nrel",
                 click: function(){app.removeTweet(tweetid,-1);}
             });
-            $("#div"+tweetid).append(relb); //'<button id="rel'+tweetid+'" class="judge rel">&#10004</button>');
-            $("#div"+tweetid).append(nrelb); //'<button id="nrel'+tweetid+'" class="judge nrel">&#10008</button>');
-/*            $("#rel"+tweetid).click(function(){
-                app.removeTweet(tweetid,1);
-            });
-            $("#nrel"+tweetid).click(function(){
-                app.removeTweet(tweetid,1);
-            });*/
+            $("#div"+tweetid).append(relb); 
+            $("#div"+tweetid).append(nrelb); 
         });
     },
     successHandler: function(result) {
@@ -119,10 +103,9 @@ var app = {
                 if ( e.regid.length > 0 )
                 {
                     console.log("Regid " + e.regid);
-                    //alert('registration id = '+e.regid);
                     $.ajax({
                         type: "POST",
-                        url: "http://lab.roegiest.com:33334/register",
+                        url: "http://XXX/register",
                         data: JSON.stringify({"regid" : e.regid}),
                         contentType : "application/json",
                         dataType: "json"

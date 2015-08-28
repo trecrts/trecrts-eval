@@ -19,7 +19,7 @@ class RetweetListener(StreamListener):
 #      print status.retweeted_status.id, status.retweeted_status.retweet_count
       if rt_status.retweet_count > 10000 and rt_status.id not in seen_tweets:
         print rt_status.id, rt_status.retweet_count,
-        resp = requests.post("http://lab.roegiest.com:33334/tweet/%s"%rt_status.id)
+        resp = requests.post("http://XXX/tweet/%s"%rt_status.id)
         print resp.status_code
         seen_tweets.add(rt_status.id)
     return True
