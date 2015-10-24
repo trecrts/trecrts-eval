@@ -21,7 +21,7 @@ class TopicListener(StreamListener):
       text = status.text.lower()
       if text.find(query) >= 0:
         print status.id,text
-        #resp = requests.post(api_base % ("/tweet/%s/%s" &(topid,status.id))
+        resp = requests.post(api_base % ("tweet/%s/%s" %(topid,status.id)), data={'clientid':clientid})
         print resp.status_code
     return True
 

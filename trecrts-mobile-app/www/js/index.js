@@ -59,7 +59,7 @@ var app = {
         console.log(window.plugins)
         var pushNotification = window.plugins.pushNotification;
         console.log(pushNotification)
-        pushNotification.register(app.successHandler, app.errorHandler,{"senderID":"","ecb":"app.onNotificationGCM"});
+        pushNotification.register(app.successHandler, app.errorHandler,{"senderID":"412241308284","ecb":"app.onNotificationGCM"});
         console.log('Received Event: ' + id);
     },
     removeTweet : function(tweetid,rel){
@@ -105,7 +105,7 @@ var app = {
                     console.log("Regid " + e.regid);
                     $.ajax({
                         type: "POST",
-                        url: "http://XXX/register",
+                        url: "http://XXX/register/mobile",
                         data: JSON.stringify({"regid" : e.regid}),
                         contentType : "application/json",
                         dataType: "json"
