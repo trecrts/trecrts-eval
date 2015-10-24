@@ -1,13 +1,16 @@
+##########################
+####
+# WARNING: THIS FILE IS DEPRECATED AND IS ONLY RETAINED FOR INFORMATIONAL PURPOSES
+# ../dumb_topic_client is the up-to-date sample program
+###
+#########################
+
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
 import requests
 
-consumer_key=""
-consumer_secret=""
-
-access_token=""
-access_token_secret=""
+cred_file = "oauth_tokens.txt"
 seen_tweets = set()
 
 class RetweetListener(StreamListener):
@@ -28,9 +31,10 @@ class RetweetListener(StreamListener):
     print status_code
 
 if __name__ == '__main__':
+  oauth = json.load(open('oauth_tokens.txt'))
   listener = RetweetListener()
-  auth = OAuthHandler(consumer_key,consumer_secret)
-  auth.set_access_token(access_token,access_token_secret)
+  auth = OAuthHandler(oauth["consumer_key"],oauth["consumer_secret"])
+  auth.set_access_token(oauth["access_token"],oauth["access_token_secret"])
 
   stream = Stream(auth,listener)
   stream.sample(languages=['en'])
