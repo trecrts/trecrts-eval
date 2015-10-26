@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var gcm = require('node-gcm')
 
-var sender = new gcm.Sender("AIzaSyB_Sk-FrEMPOx7ewmvz1DxTGBzo0-A2VpE");
+var sender = new gcm.Sender("XXX");
 var registrationIds = [];
 var regIdx = 0;
 var tweet_queue = [];
