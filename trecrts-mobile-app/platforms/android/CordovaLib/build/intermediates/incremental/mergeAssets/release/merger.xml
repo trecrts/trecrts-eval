@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="/home/aroegies/test/hello/platforms/android/CordovaLib/assets"/></dataSet><dataSet config="release"><source path="/home/aroegies/test/hello/platforms/android/CordovaLib/src/release/assets"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="/home/aroegies/trecrts-tools/trecrts-mobile-app/platforms/android/CordovaLib/assets"/></dataSet><dataSet config="release"><source path="/home/aroegies/trecrts-tools/trecrts-mobile-app/platforms/android/CordovaLib/src/release/assets"/></dataSet></merger>

@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var gcm = require('node-gcm')
 
-var sender = new gcm.Sender("AIzaSyB_Sk-FrEMPOx7ewmvz1DxTGBzo0-A2VpE");
+var sender = new gcm.Sender("AIzaSyDnR9xDxxmjknpYnter9_H0S1oJcu022zw");
 var registrationIds = [];
 var regIdx = 0;
 var tweet_queue = [];
@@ -15,11 +15,13 @@ function genID(){
   return ID;
 }
 
-function send_tweet(tweetid){
+function send_tweet(tweet){
   var message = new gcm.Message();
   message.addData('message',"You have pending tweets to judge.");
   message.addData('title','TREC RTS CrowdJudge' );
-  message.addData('tweetid',String(tweetid))
+  message.addData('tweetid',String(tweet.tweetid))
+  message.addData('topid',String(tweet.topid))
+  message.addData('topic',String(tweet.topic))
   message.addData('msgcnt','1'); // Shows up in the notification in the status bar
   message.timeToLive = 3000;// Duration in seconds to hold in GCM and retry before timing out. Default 4 weeks (2,419,200 seconds) if not specified.
   message.addNotification({title: 'TREC RTS CrowdJudge', body : 'You have pending tweets to judge.', icon: 'ic_launcher'});
@@ -74,12 +76,16 @@ router.post('/tweet/:topid/:tweetid',function(req,res){
         res.status(500).json({'message':'Could not process request for topid: ' + topid + ' and ' + tweetid});
         return;
       }
-      /*if(registrationIds.length > 0){
-        send_tweet(tweetid);
-      }else{
-        tweet_queue.push(tweetid);
-      }*/
-      // Don't send the tweet yet, since mobile code is no longer compatible
+      db.query('select query from topics where topid = ?;',topid,function(errors2,results2){
+        if(registrationIds.length > 0){
+          send_tweet({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
+        }else{
+          console.log("Hold tweet")
+          //tweet_queue.push({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
+        }
+        // Don't send the tweet yet, since mobile code is no longer compatible  
+      })
+      
       res.status(204).send();
     });
   });
@@ -89,15 +95,16 @@ router.post('/judge/:topid/:tweetid/:rel', function(req,res){
   var topid = req.params.topid;
   var tweetid = req.params.tweetid;
   var rel = req.params.rel;
-  var partid = req.body.partid;
+  //var partid = req.body.partid;
   res.status(204).send();
-  db.query('insert judgements_'+topid+'(partid,tweetid,rel) values (?,?);',[partid,tweetid,rel],function(errors,results){
+  console.log(topid,tweetid,rel)
+  /*db.query('insert judgements_'+topid+'(partid,tweetid,rel) values (?,?);',[partid,tweetid,rel],function(errors,results){
     if(errors){
       console.log("Unable to log: ",topid," ",tweetid," ",rel);
     }else{
       console.log("Logged: ",topid," ",tweetid," ",rel);
     }
-  });
+  });*/
 });
 
 router.get('/judge/:topid/:tweetid', function(req,res){

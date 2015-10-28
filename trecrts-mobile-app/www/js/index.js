@@ -16,6 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+var hostname = "example.com"
+var GCM_ID = "FOOBAR"
+
 var twttr = (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0],
             t = window.twttr || {};
@@ -59,32 +62,32 @@ var app = {
         console.log(window.plugins)
         var pushNotification = window.plugins.pushNotification;
         console.log(pushNotification)
-        pushNotification.register(app.successHandler, app.errorHandler,{"senderID":"412241308284","ecb":"app.onNotificationGCM"});
+        pushNotification.register(app.successHandler, app.errorHandler,{"senderID":GCM_SERVER,"ecb":"app.onNotificationGCM"});
         console.log('Received Event: ' + id);
     },
-    removeTweet : function(tweetid,rel){
+    removeTweet : function(topid,tweetid,rel){
         $("#div"+tweetid).remove();
         $.ajax({
             type: "POST",
-            url: "http://XXX/judge/"+tweetid+"/"+rel
+            url: hostname + "/judge/"+topid+"/"+tweetid+"/"+rel
         });
     },
-    addTweet : function (tweetid){
+    addTweet : function (tweetid,topic,topid){
         $("#tweets").append('<div id="div'+tweetid+'"></div>');
         twttr.widgets.createTweet(tweetid,document.getElementById('div'+tweetid),{})
         .then(function(){
-            $("#div"+tweetid).append('Is this tweet relevant to the information need?');
+            $("#div"+tweetid).append("Is the tweet relevant to: " + topic );
             var relb = $('<button/>',{
                 text: "\u2714",
                 id:'rel'+tweetid,
                 class: "judge rel",
-                click: function(){app.removeTweet(tweetid,1);}
+                click: function(){app.removeTweet(topid,tweetid,1);}
             });
             var nrelb = $('<button/>',{
                 text: "\u2718",
                 id:'rel'+tweetid,
                 class: "judge nrel",
-                click: function(){app.removeTweet(tweetid,-1);}
+                click: function(){app.removeTweet(topid,tweetid,-1);}
             });
             $("#div"+tweetid).append(relb); 
             $("#div"+tweetid).append(nrelb); 
@@ -105,7 +108,7 @@ var app = {
                     console.log("Regid " + e.regid);
                     $.ajax({
                         type: "POST",
-                        url: "http://XXX/register/mobile",
+                        url: hostname + "/register/mobile",
                         data: JSON.stringify({"regid" : e.regid}),
                         contentType : "application/json",
                         dataType: "json"
@@ -119,7 +122,7 @@ var app = {
               // this is the actual push notification. its format depends on the data model from the push server
               //alert('message = '+e.message+' msgcnt = '+e.msgcnt);
               //twttr.widgets.createTweet(e.payload.tweetid,document.getElementById('tweet'),{});
-              app.addTweet(e.payload.tweetid);
+              app.addTweet(e.payload.tweetid,e.payload.topic,e.payload.topid);
             break;
  
             case 'error':
