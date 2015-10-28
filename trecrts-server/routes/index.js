@@ -1,8 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var gcm = require('node-gcm')
+var push_auths = require('./push_auths.js')
 
-var sender = new gcm.Sender("AIzaSyDnR9xDxxmjknpYnter9_H0S1oJcu022zw");
+var sender = new gcm.Sender(push_auths.gcm);
 var registrationIds = [];
 var regIdx = 0;
 var tweet_queue = [];
