@@ -62,10 +62,10 @@ router.post('/register/mobile/',function(req,res){
 
 
 // TODO: Need to enforce rate-limit and enforce topid is valid
-router.post('/tweet/:topid/:tweetid',function(req,res){
+router.post('/tweet/:topid/:tweetid/:clientid',function(req,res){
   var topid = req.params.topid;
   var tweetid = req.params.tweetid;
-  var clientid = req.body.clientid;
+  var clientid = req.params.clientid;
   var db = req.db;
   validate_client(db,clientid,function(errors,results){
     if(errors || results.length === 0){
@@ -108,8 +108,8 @@ router.post('/judge/:topid/:tweetid/:rel', function(req,res){
   });*/
 });
 
-router.get('/judge/:topid/:tweetid', function(req,res){
-  var clientid = req.body.clientid;
+router.get('/judge/:topid/:tweetid/:clientid', function(req,res){
+  var clientid = req.params.clientid;
   var topid = req.params.topid;
   var tweetid = req.params.tweetid;
   var db = req.db;
@@ -150,8 +150,8 @@ router.post('/register/system/', function(req,res){
   });
 });
 
-router.get('/topics/', function(req,res){
-  var clientid = req.body.clientid;
+router.get('/topics/:clientid', function(req,res){
+  var clientid = req.params.clientid;
   var db = req.db;
   validate_client(db,clientid,function(errors,results){
     if(errors || results.length === 0){

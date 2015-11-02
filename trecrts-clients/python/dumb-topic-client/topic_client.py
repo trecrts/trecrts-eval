@@ -21,7 +21,7 @@ class TopicListener(StreamListener):
       text = status.text.lower()
       if text.find(query) >= 0:
         print status.id,text
-        resp = requests.post(api_base % ("tweet/%s/%s" %(topid,status.id)), data={'clientid':clientid})
+        resp = requests.post(api_base % ("tweet/%s/%s/%s" %(topid,status.id,clientid)))
         print resp.status_code
     return True
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
   resp = requests.post(api_base % ("register/system"),data={"groupid":"uwar"})
   clientid = resp.json()["clientid"]
 
-  resp = requests.get(api_base % ("topics"),data={"clientid":clientid})
+  resp = requests.get(api_base % ("topics/%s" % clientid))
   for row in resp.json():
     topics[row["topid"]] = row["query"].lower()
 
