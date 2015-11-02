@@ -19,7 +19,20 @@
 var hostname = "example.com"
 var GCM_SERVER = "FOOBAR"
 
-
+var twttr = (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0],
+            t = window.twttr || {};
+        if (d.getElementById(id)) return t;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "https://platform.twitter.com/widgets.js";
+        fjs.parentNode.insertBefore(js, fjs);
+        t._e = [];
+        t.ready = function(f) {
+            t._e.push(f);
+          };
+        return t;
+        }(document, "script", "twitter-wjs"));
 
 
 var app = {
@@ -68,13 +81,13 @@ var app = {
                 text: "\u2714",
                 id:'rel'+tweetid,
                 class: "judge rel",
-                click: function(){app.removeTweet(topid,tweetid,1);}
+                ng-click: removeTweet(topid,tweetid,1);}
             });
             var nrelb = $('<button/>',{
                 text: "\u2718",
                 id:'rel'+tweetid,
                 class: "judge nrel",
-                click: function(){app.removeTweet(topid,tweetid,-1);}
+                ng-click: removeTweet(topid,tweetid,-1);}
             });
             $("#div"+tweetid).append(relb); 
             $("#div"+tweetid).append(nrelb); 
