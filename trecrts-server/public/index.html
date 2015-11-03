@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0"/>
+  <link rel="stylesheet" type="text/css" href="css/index.css" />
+  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var twttr = (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0],
+            t = window.twttr || {};
+        if (d.getElementById(id)) return t;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "https://platform.twitter.com/widgets.js";
+        fjs.parentNode.insertBefore(js, fjs);
+        t._e = [];
+        t.ready = function(f) {
+            t._e.push(f);
+          };
+        return t;
+        }(document, "script", "twitter-wjs"));
+    var socket = io.connect('lab.roegiest.com:33331');
+    function removeTweet (topid,tweetid,rel){
+      $("#div"+tweetid).remove();
+
+      socket.emit('judge',{"topid":topid,"tweetid":tweetid,"rel":rel});
+    };
+    function addTweet (tweetid,topic,topid){
+        $("#tweets").append('<div id="div'+tweetid+'"></div>');
+        twttr.widgets.createTweet(tweetid,document.getElementById('div'+tweetid),{})
+        .then(function(){
+            $("#div"+tweetid).append("Is the tweet relevant to: " + topic );
+            var relb = $('<button/>',{
+                text: "\u2714",
+                id:'rel'+tweetid,
+                class: "judge rel",
+                click: function(){removeTweet(topid,tweetid,1);}
+            });
+            var nrelb = $('<button/>',{
+                text: "\u2718",
+                id:'rel'+tweetid,
+                class: "judge nrel",
+                click: function(){removeTweet(topid,tweetid,-1);}
+            });
+            $("#div"+tweetid).append(relb); 
+            $("#div"+tweetid).append(nrelb); 
+        });
+    };
+    function register(){
+      $("#regbtn").remove();
+      socket.emit('register',{});
+    }
+    socket.on('tweet',function(tweet){
+      addTweet(tweet.tweetid,tweet.topic,tweet.topid);
+    });
+  </script>
+</head>
+<body>
+  <div id="cbg">
+    <div id="bg" >
+      <div id="tweets" style="height:100%;width:100%">
+        <input style="width:100%;text-align:center" type="submit" value="Register" id="regbtn" onclick="register()" />
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

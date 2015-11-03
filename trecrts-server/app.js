@@ -5,10 +5,11 @@ var logger = require('morgan');
 var mysql = require('mysql')
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-var routes = require('./routes/index');
-
 var app = express();
+app.io = require('socket.io')()
+
+var routes = require('./routes/index')(app.io);
+
 
 var config = {host : 'localhost', database : 'trec_rts'};
 var connection;

@@ -81,13 +81,13 @@ var app = {
                 text: "\u2714",
                 id:'rel'+tweetid,
                 class: "judge rel",
-                ng-click: removeTweet(topid,tweetid,1);}
+                click: function(){removeTweet(topid,tweetid,1);}
             });
             var nrelb = $('<button/>',{
                 text: "\u2718",
                 id:'rel'+tweetid,
                 class: "judge nrel",
-                ng-click: removeTweet(topid,tweetid,-1);}
+                click: function(){removeTweet(topid,tweetid,-1);}
             });
             $("#div"+tweetid).append(relb); 
             $("#div"+tweetid).append(nrelb); 
