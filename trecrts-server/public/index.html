@@ -20,7 +20,7 @@
           };
         return t;
         }(document, "script", "twitter-wjs"));
-    var socket = io.connect('lab.roegiest.com:33331');
+    var socket = io.connect();
     function removeTweet (topid,tweetid,rel){
       $("#div"+tweetid).remove();
 

@@ -8,7 +8,7 @@ module.exports = function(io){
   var registrationIds = [];
   var regIdx = 0;
   var tweet_queue = [];
-  
+  var RATE_LIMIT = 10;
   function genID(){
     var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     var ID = '';
@@ -16,12 +16,10 @@ module.exports = function(io){
       ID += chars.charAt(Math.floor(Math.random()*chars.length));
     return ID;
   }
-  function send_tweet_socket(tweet){
-    console.log("Here")
-    registrationIds[regIdx++].emit('tweet',tweet);
-    if(regIdx >= registrationIds.length) regIdx = 0;
+  function send_tweet_socket(tweet,socket){
+    socket.emit('tweet',tweet);
   }
-  function send_tweet(tweet){
+  function send_tweet_gcm(tweet,id){
     var message = new gcm.Message();
     message.addData('message',"You have pending tweets to judge.");
     message.addData('title','TREC RTS CrowdJudge' );
@@ -31,10 +29,23 @@ module.exports = function(io){
     message.addData('msgcnt','1'); // Shows up in the notification in the status bar
     message.timeToLive = 3000;// Duration in seconds to hold in GCM and retry before timing out. Default 4 weeks (2,419,200 seconds) if not specified.
     message.addNotification({title: 'TREC RTS CrowdJudge', body : 'You have pending tweets to judge.', icon: 'ic_launcher'});
-    sender.send(message, registrationIds[regIdx++], 4, function (result) {
+    sender.send(message, id, 4, function (result) {
       console.log(result);
     });
-    if (regIdx >= registrationIds.length) regIdx = 0;
+  }
+  //TODO: Add Apple Push
+
+  function send_tweet(tweet){
+    var currDevice = registrationIds[regIdx++];
+    console.log("Here")
+    if(currDevice['type'] === 'gcm')
+      send_tweet_gcm(tweet,currDevice['conn']);
+    else if(currDevice['type'] === 'socket'){
+      console.log("Here")
+      send_tweet_socket(tweet,currDevice['conn']);
+    }
+
+    if (regIdx >= registrationIds.length) regIdx = 0; 
   }
   
   function validate(db,table,col, id,cb){
@@ -53,20 +64,20 @@ module.exports = function(io){
     var regid = req.body.regid;
     // At least one reg id required
     if ( registrationIds.indexOf(regid) === -1){
-      registrationIds.push(regid);
+      registrationIds.push({'type':'gcm','conn':regid});
     }
     res.status(204).send();
     // Definitely need to do something better here
     if(tweet_queue.length > 0){
       for(var i = 0; i < tweet_queue.length; i++){
-        send_tweet_socket(tweet_queue[i]);
+        send_tweet(tweet_queue[i]);
       }
       tweet_queue = [];
     }
   });
   
   
-  // TODO: Need to enforce rate-limit and enforce topid is valid
+  // TODO: Need to enforce topid is valid
   router.post('/tweet/:topid/:tweetid/:clientid',function(req,res){
     var topid = req.params.topid;
     var tweetid = req.params.tweetid;
@@ -77,22 +88,31 @@ module.exports = function(io){
         res.status(500).json({'message':'Could not validate client: ' + clientid})
         return;
       }
-      db.query('insert requests_' + clientid + ' (topid,tweetid) values (?,?);',[topid,tweetid], function(errors1,results1){
-        if(errors1 || results1.length === 0){
+      db.query('select count(*) as cnt from requests_'+clientid+' where topid = ? and submitted between CURDATE() and date_add(CURDATE(),INTERVAL 1 day);', [topid], function(errors0,results0){
+        if(errors0 || results0.length === 0){
           res.status(500).json({'message':'Could not process request for topid: ' + topid + ' and ' + tweetid});
           return;
+        }else if(results[0].cnt >= RATE_LIMIT){
+          res.status(429).json({'message':'Rate limit exceeded for topid: ' + topid});
+          return;
+        }else{
+          db.query('insert requests_' + clientid + ' (topid,tweetid) values (?,?);',[topid,tweetid], function(errors1,results1){
+            if(errors1 || results1.length === 0){
+              res.status(500).json({'message':'Could not process request for topid: ' + topid + ' and ' + tweetid});
+              return;
+            }
+            db.query('select query from topics where topid = ?;',topid,function(errors2,results2){
+              if(registrationIds.length > 0){
+                send_tweet({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
+              }else{
+                tweet_queue.push({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
+              }
+              // Don't send the tweet yet, since mobile code is no longer compatible  
+            })
+            
+            res.status(204).send();
+          });          
         }
-        db.query('select query from topics where topid = ?;',topid,function(errors2,results2){
-          if(registrationIds.length > 0){
-            send_tweet_socket({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
-          }else{
-            console.log("Hold tweet")
-            //tweet_queue.push({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
-          }
-          // Don't send the tweet yet, since mobile code is no longer compatible  
-        })
-        
-        res.status(204).send();
       });
     });
   });
@@ -102,15 +122,16 @@ module.exports = function(io){
     var tweetid = req.params.tweetid;
     var rel = req.params.rel;
     //var partid = req.body.partid;
+    var partid = -1;
     res.status(204).send();
     console.log(topid,tweetid,rel)
-    /*db.query('insert judgements_'+topid+'(partid,tweetid,rel) values (?,?);',[partid,tweetid,rel],function(errors,results){
+    db.query('insert judgements_'+topid+'(partid,tweetid,rel) values (?,?);',[partid,tweetid,rel],function(errors,results){
       if(errors){
         console.log("Unable to log: ",topid," ",tweetid," ",rel);
       }else{
         console.log("Logged: ",topid," ",tweetid," ",rel);
       }
-    });*/
+    });
   });
   
   router.get('/judge/:topid/:tweetid/:clientid', function(req,res){
@@ -176,7 +197,7 @@ module.exports = function(io){
   io.on('connection', function(socket){
     socket.on('register',function(){
       console.log("Registered")
-      registrationIds.push(socket);
+      registrationIds.push({'type':'socket','conn':socket});
     });
     socket.on('judge',function(msg){
       console.log('Judged: ', msg.topid, msg.tweetid,msg.rel);
