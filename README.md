@@ -2,8 +2,7 @@
 
 Herein we detail the various tools to be used in the course of the TREC 2016 Real-Time Summarization track. 
 
-The track coordinator envision the following interaction model:
-![rts-architecture](https://raw.github.com/aroegies/trecrts-tools/arch/livearch.png)
+The track coordinators envision the interaction model outlined in rts-arch/trecrtstwitter.pdf
 
 TREC participants write clients that interact with a broker run by the coordinators. This broker manages
 all communication with mobile assessors (i.e., humans with the mobile assessing application on their phone).
