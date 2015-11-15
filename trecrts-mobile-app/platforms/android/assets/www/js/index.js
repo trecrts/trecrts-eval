@@ -16,6 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+var hostname = "http://quaid.uwaterloo.ca:33331"
+var GCM_SERVER = "412241308284"
+
 var twttr = (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0],
             t = window.twttr || {};
@@ -59,15 +62,19 @@ var app = {
         console.log(window.plugins)
         var pushNotification = window.plugins.pushNotification;
         console.log(pushNotification)
-        pushNotification.register(app.successHandler, app.errorHandler,{"senderID":"412241308284","ecb":"app.onNotificationGCM"});
+        pushNotification.register(app.successHandler, app.errorHandler,{"senderID":GCM_SERVER,"ecb":"app.onNotificationGCM"});
         console.log('Received Event: ' + id);
     },
     removeTweet : function(topid,tweetid,rel){
+        alert('Tweet removed');
+        try{
         $("#div"+tweetid).remove();
+        
         $.ajax({
             type: "POST",
-            url: "http://lab.roegiest.com:33334/judge/"+topid+"/"+tweetid+"/"+rel
+            url: hostname + "/judge/"+topid+"/"+tweetid+"/"+rel
         });
+        }catch(err){alert('RM: ' + err.message);}
     },
     addTweet : function (tweetid,topic,topid){
         $("#tweets").append('<div id="div'+tweetid+'"></div>');
@@ -78,20 +85,35 @@ var app = {
                 text: "\u2714",
                 id:'rel'+tweetid,
                 class: "judge rel",
-                click: function(){app.removeTweet(topid,tweetid,1);}
+                click: function(){
+                  $("#div"+tweetid).remove();
+        
+                  $.ajax({
+                    type: "POST",
+                    url: hostname + "/judge/"+topid+"/"+tweetid+"/"+"1"
+                  });
+                }
             });
             var nrelb = $('<button/>',{
                 text: "\u2718",
                 id:'rel'+tweetid,
                 class: "judge nrel",
-                click: function(){app.removeTweet(topid,tweetid,-1);}
+                click:function(){
+                  $("#div"+tweetid).remove();
+        
+                  $.ajax({
+                    type: "POST",
+                    url: hostname + "/judge/"+topid+"/"+tweetid+"/"+"1"
+                  });
+                }
+
             });
             $("#div"+tweetid).append(relb); 
             $("#div"+tweetid).append(nrelb); 
         });
     },
     successHandler: function(result) {
-       // alert('Callback Success! Result = '+result);
+       //alert('Callback Success! Result = '+result);
     },
     errorHandler:function(error) {
         alert("Error found: " + error);
@@ -105,12 +127,12 @@ var app = {
                     console.log("Regid " + e.regid);
                     $.ajax({
                         type: "POST",
-                        url: "http://lab.roegiest.com:33334/register/mobile",
+                        url: hostname + "/register/mobile",
                         data: JSON.stringify({"regid" : e.regid}),
                         contentType : "application/json",
                         dataType: "json"
                     }).fail(function(obj,err,thrown){
-                        alert(err + " " + thrown);
+                        alert("Fail: " + err + " " + thrown);
                     });
                 }
             break;

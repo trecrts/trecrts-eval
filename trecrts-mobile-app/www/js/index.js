@@ -16,8 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var hostname = "example.com"
-var GCM_SERVER = "FOOBAR"
+var hostname = ""
+var GCM_SERVER = ""
 
 var twttr = (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0],
@@ -66,11 +66,15 @@ var app = {
         console.log('Received Event: ' + id);
     },
     removeTweet : function(topid,tweetid,rel){
+        alert('Tweet removed');
+        try{
         $("#div"+tweetid).remove();
+        
         $.ajax({
             type: "POST",
             url: hostname + "/judge/"+topid+"/"+tweetid+"/"+rel
         });
+        }catch(err){alert('RM: ' + err.message);}
     },
     addTweet : function (tweetid,topic,topid){
         $("#tweets").append('<div id="div'+tweetid+'"></div>');
@@ -81,20 +85,35 @@ var app = {
                 text: "\u2714",
                 id:'rel'+tweetid,
                 class: "judge rel",
-                click: function(){removeTweet(topid,tweetid,1);}
+                click: function(){
+                  $("#div"+tweetid).remove();
+        
+                  $.ajax({
+                    type: "POST",
+                    url: hostname + "/judge/"+topid+"/"+tweetid+"/"+"1"
+                  });
+                }
             });
             var nrelb = $('<button/>',{
                 text: "\u2718",
                 id:'rel'+tweetid,
                 class: "judge nrel",
-                click: function(){removeTweet(topid,tweetid,-1);}
+                click:function(){
+                  $("#div"+tweetid).remove();
+        
+                  $.ajax({
+                    type: "POST",
+                    url: hostname + "/judge/"+topid+"/"+tweetid+"/"+"1"
+                  });
+                }
+
             });
             $("#div"+tweetid).append(relb); 
             $("#div"+tweetid).append(nrelb); 
         });
     },
     successHandler: function(result) {
-       // alert('Callback Success! Result = '+result);
+       //alert('Callback Success! Result = '+result);
     },
     errorHandler:function(error) {
         alert("Error found: " + error);
@@ -113,7 +132,7 @@ var app = {
                         contentType : "application/json",
                         dataType: "json"
                     }).fail(function(obj,err,thrown){
-                        alert(err + " " + thrown);
+                        alert("Fail: " + err + " " + thrown);
                     });
                 }
             break;
