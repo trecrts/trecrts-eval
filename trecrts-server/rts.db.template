@@ -26,7 +26,7 @@ CREATE TABLE `clients` (
   `groupid` text,
   `clientid` varchar(12) DEFAULT NULL,
   `ip` varchar(30) DEFAULT NULL,
-  `register_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  `register_time` timestamp DEFAULT CURRENT_TIMESTAMP,
   KEY `groupid` (`groupid`(40),`clientid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -75,7 +75,7 @@ CREATE TABLE `judgements_template` (
   `assessor` text,
   `tweetid` text,
   `rel` int(11) DEFAULT '0',
-  `submitted` datetime DEFAULT CURRENT_TIMESTAMP,
+  `submitted` timestamp DEFAULT CURRENT_TIMESTAMP,
   KEY `assessor` (`assessor`(40),`tweetid`(40),`rel`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -100,7 +100,7 @@ CREATE TABLE `judgements_test1` (
   `assessor` text,
   `tweetid` text,
   `rel` int(11) DEFAULT '0',
-  `submitted` datetime DEFAULT CURRENT_TIMESTAMP,
+  `submitted` timestamp DEFAULT CURRENT_TIMESTAMP,
   KEY `assessor` (`assessor`(40),`tweetid`(40),`rel`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -125,7 +125,7 @@ CREATE TABLE `judgements_test2` (
   `assessor` text,
   `tweetid` text,
   `rel` int(11) DEFAULT '0',
-  `submitted` datetime DEFAULT CURRENT_TIMESTAMP,
+  `submitted` timestamp DEFAULT CURRENT_TIMESTAMP,
   KEY `assessor` (`assessor`(40),`tweetid`(40),`rel`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -150,7 +150,7 @@ CREATE TABLE `judgements_test3` (
   `assessor` text,
   `tweetid` text,
   `rel` int(11) DEFAULT '0',
-  `submitted` datetime DEFAULT CURRENT_TIMESTAMP,
+  `submitted` timestamp DEFAULT CURRENT_TIMESTAMP,
   KEY `assessor` (`assessor`(40),`tweetid`(40),`rel`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -174,7 +174,7 @@ DROP TABLE IF EXISTS `requests_template`;
 CREATE TABLE `requests_template` (
   `topid` text,
   `tweetid` text,
-  `submitted` datetime DEFAULT CURRENT_TIMESTAMP,
+  `submitted` timestamp DEFAULT CURRENT_TIMESTAMP,
   KEY `topid` (`topid`(40),`tweetid`(40))
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -122,11 +122,13 @@ module.exports = function(io){
     var tweetid = req.params.tweetid;
     var rel = req.params.rel;
     //var partid = req.body.partid;
-    var partid = -1;
+    var partid = "foo";
+    var db = req.db;
     res.status(204).send();
     console.log(topid,tweetid,rel)
-    db.query('insert judgements_'+topid+'(partid,tweetid,rel) values (?,?);',[partid,tweetid,rel],function(errors,results){
+    db.query('insert judgements_'+topid+'(assessor,tweetid,rel) values (?,?,?);',[partid,tweetid,rel],function(errors,results){
       if(errors){
+        console.log(errors)
         console.log("Unable to log: ",topid," ",tweetid," ",rel);
       }else{
         console.log("Logged: ",topid," ",tweetid," ",rel);
