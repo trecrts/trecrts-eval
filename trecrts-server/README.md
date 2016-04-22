@@ -28,6 +28,16 @@ and query (the information need). For example, `[{"topid":"test","query":"birthd
 
 Submit a (tweet,topic) pair for assessment. Returns a 204 status code on success.
 
+### POST /tweets/:topid/:clientid
+  - **:topid** specifies the topic identifier
+  - **:clientid** is the client's identifier that was returned when the system was registered
+
+The body of the request should contain a JSON object with a field denoted 'tweets' with a JSON array of tweetid strings,
+e.g., '{"tweets":["123","456"]}'.
+
+This submits a system's daily digest set of tweets. Can be done in batches but only the first X will be used for evaluation (X is given in the guidelines).
+
+ Returns a 204 status code on success.
 
 ### GET /judge/:topid/:tweetid/:clientid
   - **:topid** specifies the topic identifier
@@ -56,3 +66,4 @@ used for bookkeeping.
 
 Mobile app has submited a relevance assessment for a (tweet,topic) pair for assessment. 
 Returns a 204 status code on success.
+

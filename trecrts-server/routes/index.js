@@ -59,6 +59,10 @@ module.exports = function(io){
   function validate_client(db,clientid,cb){
     validate(db,'clients','clientid',clientid,cb);
   }
+
+  function isValidTweet(str){
+    return str.match('[0-9]=') !== null
+  }
   
   router.post('/register/mobile/',function(req,res){
     var regid = req.body.regid;
@@ -76,7 +80,33 @@ module.exports = function(io){
     }
   });
   
-  
+  router.post('/tweets/:topid/:clientid',function(req,res){
+    var topid = req.params.topid;
+    var clientid  = req.params.clientid;
+    var tweets = req.body.tweets;
+    validate_client(db,clientid,function(errors,results){
+      if (errors || results.length === 0){
+        res.status(500).json({'message': 'Unable to validate client: ' + clientid})
+        return;
+      }
+      stmt = ""
+      for (var i = 0; i < tweets.length; i++){
+        if (! isValidTweetID(tweets[i])){
+          res.status(404).json({'message': 'Invalid tweetid: ' + tweets[i]);
+        }
+        if (i !== 0){
+          stmt += ',(\'' + tweets[i] + '\',\'' + topid + '\')';
+        } else {
+          stmt += '(\'' + tweets[i] + '\',\'' + topid + '\')';
+        }  
+      }
+      db.query('insert into requests_digest_' + clientid + ' (docid,topid) values ' + [stmt],function(errors0,results0){
+        if (errors)
+          res.status(500).json({'message': 'Unable to insert tweets for end of day digest'});
+        res.status(204).send()
+      })
+    });
+  });
   // TODO: Need to enforce topid is valid
   router.post('/tweet/:topid/:tweetid/:clientid',function(req,res){
     var topid = req.params.topid;
@@ -88,31 +118,29 @@ module.exports = function(io){
         res.status(500).json({'message':'Could not validate client: ' + clientid})
         return;
       }
-      db.query('select count(*) as cnt from requests_'+clientid+' where topid = ? and submitted between CURDATE() and date_add(CURDATE(),INTERVAL 1 day);', [topid], function(errors0,results0){
+      db.query('select count(*) from requests_'+clientid+' where topid = ? and submitted between CURDATE() and date_add(CURDATE(),INTERVAL 1 day);', [topid], function(errors0,results0){
         if(errors0 || results0.length === 0){
           res.status(500).json({'message':'Could not process request for topid: ' + topid + ' and ' + tweetid});
           return;
-        }else if(results[0].cnt >= RATE_LIMIT){
+        }else if(results[0] >= RATE_LIMIT){
           res.status(429).json({'message':'Rate limit exceeded for topid: ' + topid});
           return;
-        }else{
-          db.query('insert requests_' + clientid + ' (topid,tweetid) values (?,?);',[topid,tweetid], function(errors1,results1){
-            if(errors1 || results1.length === 0){
-              res.status(500).json({'message':'Could not process request for topid: ' + topid + ' and ' + tweetid});
-              return;
-            }
-            db.query('select query from topics where topid = ?;',topid,function(errors2,results2){
-              if(registrationIds.length > 0){
-                send_tweet({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
-              }else{
-                tweet_queue.push({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
-              }
-              // Don't send the tweet yet, since mobile code is no longer compatible  
-            })
-            
-            res.status(204).send();
-          });          
         }
+        db.query('insert requests_' + clientid + ' (topid,tweetid) values (?,?);',[topid,tweetid], function(errors1,results1){
+          if(errors1 || results1.length === 0){
+            res.status(500).json({'message':'Could not process request for topid: ' + topid + ' and ' + tweetid});
+            return;
+           }
+          db.query('select query from topics where topid = ?;',topid,function(errors2,results2){
+            if(registrationIds.length > 0){
+              send_tweet({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
+            }else{
+               tweet_queue.push({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
+            }
+          })
+            
+          res.status(204).send();
+        });          
       });
     });
   });
@@ -124,18 +152,18 @@ module.exports = function(io){
     //var partid = req.body.partid;
     var partid = "foo";
     var db = req.db;
-    res.status(204).send();
-    console.log(topid,tweetid,rel)
     db.query('insert judgements_'+topid+'(assessor,tweetid,rel) values (?,?,?);',[partid,tweetid,rel],function(errors,results){
       if(errors){
         console.log(errors)
         console.log("Unable to log: ",topid," ",tweetid," ",rel);
+        res.status(500).json({message : 'Unable to relevance assessment'})
       }else{
         console.log("Logged: ",topid," ",tweetid," ",rel);
+        res.status(204).send()
       }
     });
   });
-  
+ 
   router.get('/judge/:topid/:tweetid/:clientid', function(req,res){
     var clientid = req.params.clientid;
     var topid = req.params.topid;
@@ -151,9 +179,8 @@ module.exports = function(io){
           res.status(500).json({'message':'Error retrieving judgement for : '+ tweetid + ' on ' + topid});
         }else if (results1.length ===0){
           res.status(500).json({'message':'No judgement for : '+ tweetid + ' on ' + topid});
-        }else{
-          res.json({'tweetid':tweetid,'topid':topid,'rel':results[0].rel});
         }
+        res.json({'tweetid':tweetid,'topid':topid,'rel':results[0].rel});
       });
     });
   });
