@@ -1,0 +1,19 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.trecrts.judgingapp"
+        },
+        "phonegap-plugin-push": {
+            "SENDER_ID": "FOO",
+            "PACKAGE_NAME": "com.trecrts.judgingapp"
+        }
+    },
+    "dependent_plugins": {}
+}
