@@ -16,8 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var hostname = "http://quaid.uwaterloo.ca:33331"
-var GCM_SERVER = "412241308284"
+var hostname = ""
+var GCM_SERVER = ""
 
 var twttr = (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0],

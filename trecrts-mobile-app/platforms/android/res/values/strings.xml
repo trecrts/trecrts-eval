@@ -3,4 +3,5 @@
     <string name="app_name">TREC RTS Mobile Judger</string>
     <string name="launcher_name">@string/app_name</string>
     <string name="activity_name">@string/launcher_name</string>
+    <string name="google_app_id">FOO</string>
 </resources>

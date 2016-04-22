@@ -8,13 +8,14 @@
         "is_top_level": true,
         "variables": {}
     },
-    "com.phonegap.plugins.PushPlugin": {
+    "phonegap-plugin-push": {
         "source": {
-            "type": "git",
-            "url": "https://github.com/phonegap-build/PushPlugin.git",
-            "subdir": "."
+            "type": "registry",
+            "id": "phonegap-plugin-push"
         },
         "is_top_level": true,
-        "variables": {}
+        "variables": {
+            "SENDER_ID": "FOO"
+        }
     }
 }

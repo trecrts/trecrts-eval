@@ -7,10 +7,11 @@
         "files": {}
     },
     "installed_plugins": {
-        "com.phonegap.plugins.PushPlugin": {
+        "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "com.trecrts.judgingapp"
         },
-        "cordova-plugin-whitelist": {
+        "phonegap-plugin-push": {
+            "SENDER_ID": "FOO",
             "PACKAGE_NAME": "com.trecrts.judgingapp"
         }
     },

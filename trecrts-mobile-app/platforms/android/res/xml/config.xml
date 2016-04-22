@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.trecrts.judgingapp" version="0.0.1" xmlns="http://www.w3.org/ns/widgets">
     <preference name="loglevel" value="DEBUG" />
-    <feature name="PushPlugin">
-        <param name="android-package" value="com.plugin.gcm.PushPlugin" />
-    </feature>
     <feature name="Whitelist">
         <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
+    </feature>
+    <feature name="PushNotification">
+        <param name="android-package" value="com.adobe.phonegap.push.PushPlugin" />
     </feature>
     <allow-intent href="market:*" />
     <param name="android-package" value="org.apache.cordova.core.NetworkManager" />
