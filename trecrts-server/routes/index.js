@@ -8,8 +8,7 @@ module.exports = function(io){
   var registrationIds = [];
   var regIdx = 0;
   var tweet_queue = [];
-  var RATE_LIMIT = 10
-  ;
+  var RATE_LIMIT = 10;
   function genID(){
     var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     var ID = '';
@@ -31,7 +30,7 @@ module.exports = function(io){
     message.timeToLive = 3000;// Duration in seconds to hold in GCM and retry before timing out. Default 4 weeks (2,419,200 seconds) if not specified.
     message.addNotification({title: 'TREC RTS CrowdJudge', body : 'You have pending tweets to judge.', icon: 'ic_launcher'});
     sender.send(message, id, 4, function (result) {
-      console.log(id,result);
+      console.log(result);
     });
   }
   //TODO: Add Apple Push
@@ -39,7 +38,6 @@ module.exports = function(io){
   function send_tweet(tweet){
     var currDevice = registrationIds[regIdx++];
     console.log("Here")
-    console.log(currDevice)
     if(currDevice['type'] === 'gcm')
       send_tweet_gcm(tweet,currDevice['conn']);
     else if(currDevice['type'] === 'socket'){
@@ -69,7 +67,6 @@ module.exports = function(io){
   router.post('/register/mobile/',function(req,res){
     var regid = req.body.regid;
     // At least one reg id required
-    console.log(regid)
     if ( registrationIds.indexOf(regid) === -1){
       registrationIds.push({'type':'gcm','conn':regid});
     }
@@ -95,7 +92,7 @@ module.exports = function(io){
       stmt = ""
       for (var i = 0; i < tweets.length; i++){
         if (! isValidTweetID(tweets[i])){
-          res.status(404).json({'message': 'Invalid tweetid: ' + tweets[i]});
+          res.status(404).json({'message': 'Invalid tweetid: ' + tweets[i]);
         }
         if (i !== 0){
           stmt += ',(\'' + tweets[i] + '\',\'' + topid + '\')';
@@ -107,7 +104,7 @@ module.exports = function(io){
         if (errors)
           res.status(500).json({'message': 'Unable to insert tweets for end of day digest'});
         res.status(204).send()
-      });
+      })
     });
   });
   // TODO: Need to enforce topid is valid
@@ -121,12 +118,11 @@ module.exports = function(io){
         res.status(500).json({'message':'Could not validate client: ' + clientid})
         return;
       }
-      db.query('select count(*) as cnt from requests_'+clientid+' where topid = ? and submitted between CURDATE() and date_add(CURDATE(),INTERVAL 1 day);', [topid], function(errors0,results0){
-        console.log(results0[0].cnt)
+      db.query('select count(*) from requests_'+clientid+' where topid = ? and submitted between CURDATE() and date_add(CURDATE(),INTERVAL 1 day);', [topid], function(errors0,results0){
         if(errors0 || results0.length === 0){
           res.status(500).json({'message':'Could not process request for topid: ' + topid + ' and ' + tweetid});
           return;
-        }else if(results0[0].cnt >= RATE_LIMIT){
+        }else if(results[0] >= RATE_LIMIT){
           res.status(429).json({'message':'Rate limit exceeded for topid: ' + topid});
           return;
         }
@@ -136,7 +132,6 @@ module.exports = function(io){
             return;
            }
           db.query('select query from topics where topid = ?;',topid,function(errors2,results2){
-
             if(registrationIds.length > 0){
               send_tweet({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
             }else{
@@ -205,7 +200,6 @@ module.exports = function(io){
           return;
         }
         db.query('create table requests_'+clientid+' like requests_template;'); // Assume this works for now
-        db.query('create table requests_digest_'+clientid+' like requests_template;'); // Assume this works for now
         res.json({'clientid':clientid});
       });
     });
@@ -229,12 +223,6 @@ module.exports = function(io){
       });
     });
   });
-  router.delete('/unregister/mobile/:regid',function(req,res){
-    var regid = req.params.regid
-    var idx = registrationIds.indexOf({"type":"gcm","conn":regid})
-    console.log(idx)
-    if (idx > -1) registrationIds.splice(idx,1)
-  })
   io.on('connection', function(socket){
     socket.on('register',function(){
       console.log("Registered")

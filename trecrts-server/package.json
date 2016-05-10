@@ -14,8 +14,6 @@
     "serve-favicon": "~2.2.0",
     "node-gcm": "latest",
     "mysql" : "latest",
-    "socket.io" : "latest",
-    "winston" : "latest",
-    "winston-mysql-transport" : "latest"
+    "socket.io" : "latest"
   }
 }
