@@ -34,7 +34,7 @@ var twttr = (function(d, s, id) {
         return t;
         }(document, "script", "twitter-wjs"));
 
-
+var regid = "";
 var app = {
     // Application Constructor
     initialize: function() {
@@ -47,6 +47,13 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+        $(window).on('beforeunload',function(evt){
+            console.log("I am unloading")
+            $.ajax({
+                type: "DELETE",
+                url: hostname + "/unregister/mobile/"+regid
+            });    
+        })
     },
     // deviceready Event Handler
     //
@@ -55,15 +62,6 @@ var app = {
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
         
-    },
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        console.log(id)
-        console.log(window.plugins)
-        var pushNotification = window.plugins.pushNotification;
-        console.log(pushNotification)
-        pushNotification.register(app.successHandler, app.errorHandler,{"senderID":GCM_SERVER,"ecb":"app.onNotificationGCM"});
-        console.log('Received Event: ' + id);
     },
     removeTweet : function(topid,tweetid,rel){
         alert('Tweet removed');
@@ -108,8 +106,52 @@ var app = {
                 }
 
             });
+            $("#div"+tweetid).hammer().on({'swipeleft': function(){app.removeTweet(topid,tweetid,"-1");},'swiperight':function(){app.removeTweet(topid,tweetid,"1");}});
             $("#div"+tweetid).append(relb); 
             $("#div"+tweetid).append(nrelb); 
+        });
+    },
+    // Update DOM on a Received Event
+    receivedEvent: function(id) {
+        //console.log(id)
+        //console.log(window.plugins)
+        //var pushNotification = window.plugins.pushNotification;
+        //console.log(pushNotification)
+        //pushNotification.register(app.successHandler, app.errorHandler,{"senderID":GCM_SERVER,"ecb":"app.onNotificationGCM"});
+        //console.log('Received Event: ' + id);
+        var push = PushNotification.init({
+            android : { senderID : GCM_SERVER}
+        });
+        push.on('registration',function (data){
+            
+                if ( data.registrationId.length > 0 )
+                {
+                    regid = data.registrationId
+                    console.log("Regid " + regid);
+                    $.ajax({
+                        type: "POST",
+                        url: hostname + "/register/mobile",
+                        data: JSON.stringify({"regid" : regid}),
+                        contentType : "application/json",
+                        dataType: "json"
+                    }).fail(function(obj,err,thrown){
+                        alert("Fail: " + err + " " + thrown);
+                    });
+                }
+        });
+        push.on('notification',function(data){
+        //    alert("Received notification")
+            var payload = data.additionalData
+            //alert(JSON.stringify(payload))
+            console.log(payload.tweetid);
+            console.log(payload.topid);
+            console.log(payload.topic);
+            app.addTweet(payload.tweetid,payload.topic,payload.topid);
+//            addTweet(payload.tweetid,payload.topic,payload.topid)
+
+        });
+        push.on('error',function(error){
+            alert("Error occurred")
         });
     },
     successHandler: function(result) {
