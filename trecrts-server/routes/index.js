@@ -21,28 +21,38 @@ module.exports = function(io){
   }
   function send_tweet_gcm(tweet,id){
     var message = new gcm.Message();
-    message.addData('message',"You have pending tweets to judge.");
+    message.addData('title', 'TREC RTS Mobile Judger');
+    message.addData('message','There are pending tweets to judge.')
+    message.addData('tweetid',String(tweet.tweetid))
+    message.addData('topid',String(tweet.topid))
+    message.addData('topic',String(tweet.topic))
+    message.addData('content-available', '1');
+    sender.send(message, { registrationTokens: [ id ] }, function (err, response) {
+        if(err) console.error(err);
+       //else    console.log(response);
+    });
+    //var message = new gcm.Message({"content-available":1});
+ /*   message.addData('message',"You have pending tweets to judge.");
     message.addData('title','TREC RTS CrowdJudge' );
     message.addData('tweetid',String(tweet.tweetid))
     message.addData('topid',String(tweet.topid))
     message.addData('topic',String(tweet.topic))
     message.addData('msgcnt','1'); // Shows up in the notification in the status bar
+    message.addData('content-available',1);
     message.timeToLive = 3000;// Duration in seconds to hold in GCM and retry before timing out. Default 4 weeks (2,419,200 seconds) if not specified.
-    message.addNotification({title: 'TREC RTS CrowdJudge', body : 'You have pending tweets to judge.', icon: 'ic_launcher'});
+    message.delayWhileIdle = false;
+    message.addNotification({title: 'TREC RTS CrowdJudge','content-available':1, body : 'You have pending tweets to judge.', icon: 'ic_launcher'});
     sender.send(message, id, 4, function (result) {
       console.log(id,result);
-    });
+    });*/
   }
   //TODO: Add Apple Push
 
   function send_tweet(tweet){
     var currDevice = registrationIds[regIdx++];
-    console.log("Here")
-    console.log(currDevice)
     if(currDevice['type'] === 'gcm')
       send_tweet_gcm(tweet,currDevice['conn']);
     else if(currDevice['type'] === 'socket'){
-      console.log("Here")
       send_tweet_socket(tweet,currDevice['conn']);
     }
 
@@ -68,7 +78,6 @@ module.exports = function(io){
   router.post('/register/mobile/',function(req,res){
     var regid = req.body.regid;
     // At least one reg id required
-    console.log(regid)
     if ( registrationIds.indexOf(regid) === -1){
       registrationIds.push({'type':'gcm','conn':regid});
     }
@@ -121,7 +130,6 @@ module.exports = function(io){
         return;
       }
       db.query('select count(*) as cnt from requests_'+clientid+' where topid = ? and submitted between CURDATE() and date_add(CURDATE(),INTERVAL 1 day);', [topid], function(errors0,results0){
-        console.log(results0[0].cnt)
         if(errors0 || results0.length === 0){
           res.status(500).json({'message':'Could not process request for topid: ' + topid + ' and ' + tweetid});
           return;

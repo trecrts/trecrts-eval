@@ -17,8 +17,8 @@
  * under the License.
  */
 
-button.judge{
-  font-size: 40px;
+span.judge{
+  font-size: 3em;
   border: none;
   border-bottom-color: transparent;
   box-shadow: none;
@@ -27,10 +27,33 @@ button.judge{
   padding-bottom: 10px;
   padding-top:5px;
   outline:none;
+  -webkit-column-span: 1;
+  column-span: 1;
+  -webkit-column-gap:1em;
+  -moz-column-gap:1em;
+  column-gap:1em;
+  text-align:center;
 }
-button.rel{
+span.topic-span{
+  -webkit-column-span: all;
+  column-span: all;
+}
+div.tweet-div{
+  -webkit-column-count: 3;
+  -moz-column-count: 3;
+  column-count: 3;
+}
+span.rel{
   color : green;
+
 }
-button.nrel {
+span.nrel {
   color : red;
+}
+span.rep{
+  color : blue;
+}
+.twitter-tweet{
+  column-span:all;
+  -webkit-column-span:all;
 }
