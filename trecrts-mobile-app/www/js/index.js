@@ -58,7 +58,7 @@
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        app.receivedEvent('deviceready');
+        //app.receivedEvent('deviceready');
         $(window).on('beforeunload',function(evt){
             console.log("I am unloading")
             $.ajax({
@@ -69,6 +69,20 @@
         document.addEventListener('pause',app.pauseApp,false)
         document.addEventListener('reisgn',app.pauseApp,false) // iOS specific event similar to pause
         document.addEventListener('resume',app.resumeApp,false) 
+        $("#login").bind('click',app.login);
+        $("#logout").bind('click',app.logout);
+    },
+    login : function(){
+        $("#login-box").hide()
+        $("#logout-box").show()
+        $("#userid").html($("#login-input").val())
+        app.receivedEvent('deviceready')
+    },
+    logout : function(){
+        $.ajax({
+            type: "DELETE",
+            url: hostname + "/unregister/mobile/"+regid
+        });  
     },
     pauseApp : function(){
         paused = true
@@ -122,7 +136,7 @@
             });
             var repb = $('<span/>',{
                 id:'rel'+tweetid,
-                class: "judge rep glyphicon glyphicon-repeat",
+                class: "judge rep glyphicon glyphicon-refresh",
                 click:function(){
                     app.removeTweet(topid,tweetid,"1")
                 }
