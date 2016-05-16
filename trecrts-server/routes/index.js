@@ -31,20 +31,6 @@ module.exports = function(io){
         if(err) console.error(err);
        //else    console.log(response);
     });
-    //var message = new gcm.Message({"content-available":1});
- /*   message.addData('message',"You have pending tweets to judge.");
-    message.addData('title','TREC RTS CrowdJudge' );
-    message.addData('tweetid',String(tweet.tweetid))
-    message.addData('topid',String(tweet.topid))
-    message.addData('topic',String(tweet.topic))
-    message.addData('msgcnt','1'); // Shows up in the notification in the status bar
-    message.addData('content-available',1);
-    message.timeToLive = 3000;// Duration in seconds to hold in GCM and retry before timing out. Default 4 weeks (2,419,200 seconds) if not specified.
-    message.delayWhileIdle = false;
-    message.addNotification({title: 'TREC RTS CrowdJudge','content-available':1, body : 'You have pending tweets to judge.', icon: 'ic_launcher'});
-    sender.send(message, id, 4, function (result) {
-      console.log(id,result);
-    });*/
   }
   //TODO: Add Apple Push
 
@@ -71,12 +57,38 @@ module.exports = function(io){
     validate(db,'clients','clientid',clientid,cb);
   }
 
+  function validate_participant(db,partid,cb){
+    validate(db,'participants','partid',partid,cb);
+  }
+  function validate_client_or_participant(db,uniqid,cb){
+    validate_client(db,uniqid,function(errors,results){
+      if(errors || results.length === 0){
+        validate_participant(db,partid,cb);
+      }else{
+        cb(errors,results);
+      }
+    });
+  }
   function isValidTweet(str){
     return str.match('[0-9]=') !== null
   }
   
+  router.get('/validate/part/:partid',function{req,res}{
+    var partid = req.params.partid;
+    var db = req.db;
+    validate_participant(db,partid,function(errors0,results0){
+      if (errors || results.length === 0){
+        res.status(500).json({'message': 'Unable to validate client: ' + clientid})
+        return;
+      }else{
+        res.status(204).send()
+      }
+    });
+  });
+
   router.post('/register/mobile/',function(req,res){
     var regid = req.body.regid;
+    var partid = req.body.partid;
     // At least one reg id required
     if ( registrationIds.indexOf(regid) === -1){
       registrationIds.push({'type':'gcm','conn':regid});
@@ -95,6 +107,7 @@ module.exports = function(io){
     var topid = req.params.topid;
     var clientid  = req.params.clientid;
     var tweets = req.body.tweets;
+    var db = req.db;
     validate_client(db,clientid,function(errors,results){
       if (errors || results.length === 0){
         res.status(500).json({'message': 'Unable to validate client: ' + clientid})
@@ -218,21 +231,87 @@ module.exports = function(io){
     });
   });
   
-  router.get('/topics/:clientid', function(req,res){
-    var clientid = req.params.clientid;
+  router.get('/topics/:uniqid', function(req,res){
+    var uniqid = req.params.uniqid;
     var db = req.db;
-    validate_client(db,clientid,function(errors,results){
+    validate_client_or_participant(db,uniqid,function(errors,results){
       if(errors || results.length === 0){
         console.log(errors);
-        res.status(500).json({'message':'Unable to validate client: ' + clientid});
+        res.status(500).json({'message':'Unable to validate client: ' + uniqid});
         return;
       }
       db.query('select topid,query from topics;',function(errors1,results1){
         if(errors1){
-          res.status(500).json({'message':'Unable to retrieve topics for client: ' + clientid});
+          res.status(500).json({'message':'Unable to retrieve topics for client: ' + uniqid});
         }else{
           res.json(results1);
         }
+      });
+    });
+  });
+  router.post('/topics/interest/:partid',function(req,res){
+    var partid = req.body.partid;
+    var topids = req.body.topids;
+    var db = req.db;
+    validate_participant(db,partid,function(errors0,results0){
+      if(errors0 || results0.length === 0){
+        res.status(500).json({'message':'Unable to validate participant:'+partid});
+        return
+      }
+      stmt = ""
+      for (var i = 0; i < topids.length; i++){
+        if (i !== 0){
+          stmt += ',(\'' + topids[i] + '\',\'' + partid + '\')';
+        } else {
+          stmt += '(\'' + topids[i] + '\',\'' + partid + '\')';
+        }  
+      }
+      db.query('insert into topic_assignments (topid,partid) values ' + [stmt],function(errors0,results0){
+        if (errors)
+          res.status(500).json({'message': 'Unable to insert topics for partid:' + partid});
+        res.status(204).send()
+      });
+    });
+  });
+  router.get('/topics/interest/:partid',function(req,res){
+    var partid = req.params.partid;
+    var topids = req.body.topids;
+    var db = req.db;
+    validate_participant(db,partid,function(errors0,results0){
+      if(errors0 || results0.length === 0){
+        res.status(500).json({'message':'Unable to validate participant:'+partid});
+        return
+      }
+      db.query('select topid from topic_assignments where partid = ?;',partid,function(errors1,results1){
+        if(errors1){
+          res.status(500).json({'message':'Unable to fetch assigned topics for: ' + partid})
+          return;
+        };
+        res.json(results)
+      });
+    });
+  });
+  router.post('/topics/suggest/:uniqid',function(req,res){
+    var db = req.db;
+    var uniqid = req.params.uniqid;
+    var topics = req.body.topics;
+    validate_client_or_participant(db,uniqid,function(errors0,results0){
+      if(errors0 || results0.length === 0){
+        res.status(500).json({'message':'Unable to validate: ' + uniqid})
+        return;
+      }
+      stmt = ""
+      for (var i = 0; i < topics.length; i++){
+        if (i !== 0){
+          stmt += ',(\'' + topics[i].title + '\',\'' + topics[i].desc + '\')';
+        } else {
+          stmt += '(\'' + topics[i].title + '\',\'' + topics[i].desc + '\')';
+        }  
+      }
+      db.query('insert into candidate_topics (title,desc) values ' + [stmt],function(errors0,results0){
+        if (errors)
+          res.status(500).json({'message': 'Unable to insert topic suggestions for:' + partid});
+        res.status(204).send()
       });
     });
   });
@@ -241,6 +320,8 @@ module.exports = function(io){
     var idx = registrationIds.indexOf({"type":"gcm","conn":regid})
     if (idx > -1) registrationIds.splice(idx,1)
   })
+
+
   io.on('connection', function(socket){
     socket.on('register',function(){
       console.log("Registered")
