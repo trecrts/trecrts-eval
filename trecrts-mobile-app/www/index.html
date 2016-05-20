@@ -10,7 +10,7 @@
     "License"); you may not use this file except in compliance
     with the License.  You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    https://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
@@ -24,12 +24,15 @@
         <meta charset="utf-8" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="msapplication-tap-highlight" content="no" />
+         <meta  http-equiv="Content-Security-Policy" content="default-src * gap: APISERVER https://platform.twitter.com/ 'unsafe-inline'; connect-src APISERVER https://platform.twitter.com/" /> 
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
         <link rel="stylesheet" type="text/css" href="css/index.css" />
         <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
-        <script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
+        <script type="text/javascript" src="lib/fastclick.js"></script>
+        <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
+
         <title>TREC RTS Mobile Assessor</title>
 
     </head>

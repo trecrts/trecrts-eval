@@ -8,24 +8,45 @@
         Adam Roegiest and the TREC RTS coordinators
     </author>
     <preference name="android-minSdkVersion" value="14"/>
+    <preference name="webviewbounce" value="false" />
+    <preference name="auto-hide-splash-screen" value="true" />
+
     <content src="index.html" />
     <plugin name="cordova-plugin-whitelist" version="1" />
     <plugin name="phonegap-plugin-push" spec="1.6.0">
-      <variable name="SENDER_ID" value="FOO" />
-    </plugin>
-    <access origin="*" />
-    <allow-intent href="http://*/*" />
-    <allow-intent href="https://*/*" />
-    <allow-intent href="tel:*" />
-    <allow-intent href="sms:*" />
-    <allow-intent href="mailto:*" />
-    <allow-intent href="geo:*" />
-    <platform name="android">
-        <allow-intent href="market:*" />
-        <param name="android-package" value="org.apache.cordova.core.NetworkManager" />
-    </platform>
-    <platform name="ios">
-        <allow-intent href="itms:*" />
-        <allow-intent href="itms-apps:*" />
-    </platform>
+      <variable name="SENDER_ID" value="GCM" />
+  </plugin>
+  <plugin name="cordova-plugin-statusbar" />
+  <plugin name="cordova-plugin-device" />
+  <plugin name="cordova-plugin-console" />
+  <plugin name="cordova-plugin-wkwebview-engine" />
+  <plugin name="cordova-plugin-network-information"  />
+  <access origin="*" subdomain="true" />
+  <access origin="http://*" />
+  <access origin="https://*" />
+  <allow-navigation href="*" subdomain="true"/>
+  <allow-navigation href="http://*/*" />
+  <allow-navigation href="https://*/*" />
+  <allow-intent href="http://*/*" />
+  <allow-intent href="https://*/*" />
+  <allow-intent href="tel:*" />
+  <allow-intent href="sms:*" />
+  <allow-intent href="mailto:*" />
+  <allow-intent href="geo:*" />
+  <hook type="after_build" src="replaceServer.js" />
+  <platform name="android">
+    <allow-intent href="market:*" />
+    <param name="android-package" value="org.apache.cordova.core.NetworkManager" />
+  </platform>
+  <platform name="ios">
+    <allow-intent href="itms:*" />
+    <allow-intent href="itms-apps:*" />
+  <config-file platform="ios" target="*-Info.plist" parent="NSAppTransportSecurity">
+    <dict>
+      <key>NSAllowsArbitraryLoads</key><true/>
+    </dict>
+  </config-file>
+</platform>
+<preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarStyle" value="default" />
 </widget>

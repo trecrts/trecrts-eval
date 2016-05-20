@@ -34,9 +34,69 @@ span.judge{
   column-gap:1em;
   text-align:center;
 }
+div#nav{
+  position:absolute;
+  top:0;
+  width:100%;
+  border-bottom: 2px solid black;
+  display:block;
+  height:3.5em;
+}
+div#login-box{
+  position:absolute;
+  width:100%;
+  display:inline-block;
+}
+div#tweets{
+  height:inherit;
+  top:3.5em;
+  position:absolute;
+}
+input#login-input{
+  width:75%;
+  display: inline;
+  margin-top:2px;
+  top:0;
+  left:2px;
+  font-size:1.5em;
+  position:absolute;
+}
+span.logout-info{
+  font-size:1.5em;
+  margin-top:2px;
+  display:inline;
+  font-weight: bold;
+}
+span#login{
+  color:#00ccff;
+  right:0;
+  font-size:3em;
+  margin-right:10px;
+  margin-top:2px;
+/*  padding-top:20px;
+  padding-right:10px;*/
+  top:0;
+  position:absolute;
+  display:inline;
+}
+div#logout-box{
+  display:none;
+  height:inherit;
+}
+span#logout{
+  position:absolute;
+  color:#00ccff;
+  right:0;
+  font-size:3em;
+  margin-top:2px;
+  margin-right:10px;
+  display:inline;
+}
 span.topic-span{
   -webkit-column-span: all;
   column-span: all;
+  display:block;
+  font-size:1.25em;
 }
 div.tweet-div{
   -webkit-column-count: 3;

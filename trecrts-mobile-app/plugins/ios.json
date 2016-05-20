@@ -7,11 +7,35 @@
         "files": {}
     },
     "installed_plugins": {
+        "cordova-plugin-console": {
+            "PACKAGE_NAME": "com.trecrts.judgingapp"
+        },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "com.trecrts.judgingapp"
+        },
+        "cordova-plugin-network-information": {
+            "PACKAGE_NAME": "com.trecrts.judgingapp"
+        },
+        "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "com.trecrts.judgingapp"
+        },
+        "cordova-plugin-transport-security": {
+            "PACKAGE_NAME": "com.trecrts.judgingapp"
+        },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "com.trecrts.judgingapp"
         },
+        "cordova-plugin-wkwebview-engine": {
+            "PACKAGE_NAME": "com.trecrts.judgingapp"
+        },
         "phonegap-plugin-push": {
-            "SENDER_ID": "FOO",
+            "SENDER_ID": "Foo",
+            "PACKAGE_NAME": "com.trecrts.judgingapp"
+        },
+        "sk.kcorp.cordova.ios-security": {
+            "PACKAGE_NAME": "com.trecrts.judgingapp"
+        },
+        "cordova-plugin-inappbrowser": {
             "PACKAGE_NAME": "com.trecrts.judgingapp"
         }
     },

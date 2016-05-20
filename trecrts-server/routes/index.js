@@ -2,8 +2,10 @@ module.exports = function(io){
   var express = require('express')
   var router = express.Router();
   var gcm = require('node-gcm')
+  var apn = require('apn')
   var push_auths = require('./push_auths.js')
-  
+  var apnConnection = new apn.Connection()
+
   var sender = new gcm.Sender(push_auths.gcm);
   var registrationIds = [];
   var regIdx = 0;
@@ -32,7 +34,15 @@ module.exports = function(io){
        //else    console.log(response);
     });
   }
-  //TODO: Add Apple Push
+ function send_tweet_apn(tweet,id){
+    var note = new apn.Notification();
+    note.expiry = Math.floor(Date.now() / 1000) + 3600
+    note['content-available'] = 1
+    note.alert = 'There are pending tweets to judge.'
+    note.payload = {'tweetid':String(tweet.tweetid),'topid':String(tweet.topid),'topic':String(tweet.topic),'messageFrom' : 'TREC RTS Mobile Judger'}
+    apnConnection.pushNotification(note,new apn.Device(id))
+  }
+
 
   function send_tweet(tweet){
     var currDevice = registrationIds[regIdx++];
@@ -40,6 +50,8 @@ module.exports = function(io){
       send_tweet_gcm(tweet,currDevice['conn']);
     else if(currDevice['type'] === 'socket'){
       send_tweet_socket(tweet,currDevice['conn']);
+    } else if(currDevice['type'] === 'apn'){
+      send_tweet_apn(tweet,currDevice['conn'])
     }
 
     if (regIdx >= registrationIds.length) regIdx = 0; 
@@ -73,7 +85,7 @@ module.exports = function(io){
     return str.match('[0-9]=') !== null
   }
   
-  router.get('/validate/part/:partid',function{req,res}{
+  router.get('/validate/part/:partid',function(req,res){
     var partid = req.params.partid;
     var db = req.db;
     validate_participant(db,partid,function(errors0,results0){
@@ -89,9 +101,14 @@ module.exports = function(io){
   router.post('/register/mobile/',function(req,res){
     var regid = req.body.regid;
     var partid = req.body.partid;
+    var device = req.body.device;
+    console.log(device)
     // At least one reg id required
     if ( registrationIds.indexOf(regid) === -1){
-      registrationIds.push({'type':'gcm','conn':regid});
+      if (device === "iOS")
+        registrationIds.push({'type':'apn','conn':regid});
+      else
+        registrationIds.push({'type':'gcm','conn':regid});
     }
     res.status(204).send();
     // Definitely need to do something better here
@@ -286,7 +303,7 @@ module.exports = function(io){
         if(errors1){
           res.status(500).json({'message':'Unable to fetch assigned topics for: ' + partid})
           return;
-        };
+        }
         res.json(results)
       });
     });
@@ -308,9 +325,9 @@ module.exports = function(io){
           stmt += '(\'' + topics[i].title + '\',\'' + topics[i].desc + '\')';
         }  
       }
-      db.query('insert into candidate_topics (title,desc) values ' + [stmt],function(errors0,results0){
-        if (errors)
-          res.status(500).json({'message': 'Unable to insert topic suggestions for:' + partid});
+      db.query('insert into candidate_topics (title,desc) values ' + [stmt],function(errors1,results1){
+        if (errors1)
+          res.status(500).json({'message': 'Unable to insert topic suggestions for:' + uniqid});
         res.status(204).send()
       });
     });
@@ -319,7 +336,7 @@ module.exports = function(io){
     var regid = req.params.regid
     var idx = registrationIds.indexOf({"type":"gcm","conn":regid})
     if (idx > -1) registrationIds.splice(idx,1)
-  })
+  });
 
 
   io.on('connection', function(socket){

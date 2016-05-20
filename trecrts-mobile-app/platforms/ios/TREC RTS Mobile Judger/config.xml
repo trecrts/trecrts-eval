@@ -15,8 +15,27 @@
         <param name="ios-package" value="CDVGestureHandler" />
         <param name="onload" value="true" />
     </feature>
+    <feature name="Console">
+        <param name="ios-package" value="CDVLogger" />
+    </feature>
+    <feature name="Device">
+        <param name="ios-package" value="CDVDevice" />
+    </feature>
+    <feature name="NetworkStatus">
+        <param name="ios-package" value="CDVConnection" />
+    </feature>
+    <feature name="StatusBar">
+        <param name="ios-package" value="CDVStatusBar" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="CDVWKWebViewEngine">
+        <param name="ios-package" value="CDVWKWebViewEngine" />
+    </feature>
     <feature name="PushNotification">
         <param name="ios-package" value="PushPlugin" />
+    </feature>
+    <feature name="InAppBrowser">
+        <param name="ios-package" value="CDVInAppBrowser" />
     </feature>
     <name>TREC RTS Mobile Judger</name>
     <description>
@@ -26,7 +45,12 @@
         Adam Roegiest and the TREC RTS coordinators
     </author>
     <content src="index.html" />
-    <access origin="*" />
+    <access origin="*" subdomain="true" />
+    <access origin="http://*" />
+    <access origin="https://*" />
+    <allow-navigation href="*" subdomain="true" />
+    <allow-navigation href="http://*/*" />
+    <allow-navigation href="https://*/*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
@@ -35,6 +59,12 @@
     <allow-intent href="geo:*" />
     <allow-intent href="itms:*" />
     <allow-intent href="itms-apps:*" />
+    <config-file parent="NSAppTransportSecurity" platform="ios" target="*-Info.plist">
+        <dict>
+            <key>NSAllowsArbitraryLoads</key>
+            <true />
+        </dict>
+    </config-file>
     <preference name="AllowInlineMediaPlayback" value="false" />
     <preference name="BackupWebStorage" value="cloud" />
     <preference name="DisallowOverscroll" value="false" />
@@ -48,5 +78,10 @@
     <preference name="PageLength" value="0" />
     <preference name="PaginationBreakingMode" value="page" />
     <preference name="PaginationMode" value="unpaginated" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarStyle" value="default" />
+    <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
     <preference name="android-minSdkVersion" value="14" />
+    <preference name="webviewbounce" value="false" />
+    <preference name="auto-hide-splash-screen" value="true" />
 </widget>

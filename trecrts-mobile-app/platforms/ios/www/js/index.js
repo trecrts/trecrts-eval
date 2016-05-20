@@ -16,28 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var hostname = ""
-var GCM_SERVER = ""
+ var hostname = "http://gladius.cs.uwaterloo.ca"
+ var GCM_SERVER = "412241308284"
+$.support.cors = true; 
+//$.mobile.allowCrossDomainPages = true;
+ var twttr = (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0],
+    t = window.twttr || {};
+    if (d.getElementById(id)) return t;
+    js = d.createElement(s);
+    js.id = id;
+    js.src = "//platform.twitter.com/widgets.js";
+    fjs.parentNode.insertBefore(js, fjs);
+    t._e = [];
+    t.ready = function(f) {
+        t._e.push(f);
+    };
+    return t;
+}(document, "script", "twitter-wjs"));
 
-var twttr = (function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0],
-            t = window.twttr || {};
-        if (d.getElementById(id)) return t;
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "https://platform.twitter.com/widgets.js";
-        fjs.parentNode.insertBefore(js, fjs);
-        t._e = [];
-        t.ready = function(f) {
-            t._e.push(f);
-          };
-        return t;
-        }(document, "script", "twitter-wjs"));
-
-
-var app = {
+ var regid = "";
+ var paused = false
+ var seenTweets = {}
+ var tweetQueue = []
+ var app = {
     // Application Constructor
     initialize: function() {
+
         this.bindEvents();
     },
 
@@ -47,69 +52,172 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+
+
     },
     // deviceready Event Handler
     //
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        app.receivedEvent('deviceready');
-        
+        window.open = cordova.InAppBrowser.open;
+        //app.receivedEvent('deviceready');
+        Origami.fastclick(document.body);
+        $(window).on('beforeunload',function(evt){
+            console.log("I am unloading")
+            $.ajax({
+                type: "DELETE",
+                url: hostname + "/unregister/mobile/"+regid
+            });    
+        })
+        document.addEventListener('pause',app.pauseApp,false)
+        document.addEventListener('reisgn',app.pauseApp,false) // iOS specific event similar to pause
+        document.addEventListener('resume',app.resumeApp,false) 
+        $("#login").bind('click',app.login);
+        $("#logout").bind('click',app.logout);
     },
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        console.log(id)
-        console.log(window.plugins)
-        var pushNotification = window.plugins.pushNotification;
-        console.log(pushNotification)
-        pushNotification.register(app.successHandler, app.errorHandler,{"senderID":GCM_SERVER,"ecb":"app.onNotificationGCM"});
-        console.log('Received Event: ' + id);
+    login : function(){
+        $("#login-box").hide()
+        $("#logout-box").show()
+        $("#userid").html($("#login-input").val())
+        app.receivedEvent('deviceready')
+    },
+    logout : function(){
+        $.ajax({
+            type: "DELETE",
+            url: hostname + "/unregister/mobile/"+regid
+        });  
+    },
+    pauseApp : function(){
+        paused = true
+        console.log("pausing app")
+    },
+    resumeApp : function(){
+        console.log("unpausing app")
+        paused = false
+        // Load queue of tweets
+        tweetQueue.forEach(function(tweetInfo){
+            app.addTweet(tweetInfo.tweetid,tweetInfo.topic,tweetInfo.topid)
+        });
+        tweetQueue = []
     },
     removeTweet : function(topid,tweetid,rel){
-        alert('Tweet removed');
         try{
-        $("#div"+tweetid).remove();
-        
-        $.ajax({
-            type: "POST",
-            url: hostname + "/judge/"+topid+"/"+tweetid+"/"+rel
-        });
+            $("#div"+tweetid).remove();
+
+            $.ajax({
+                type: "POST",
+                url: hostname + "/judge/"+topid+"/"+tweetid+"/"+rel
+            });
         }catch(err){alert('RM: ' + err.message);}
     },
     addTweet : function (tweetid,topic,topid){
-        $("#tweets").append('<div id="div'+tweetid+'"></div>');
-        twttr.widgets.createTweet(tweetid,document.getElementById('div'+tweetid),{})
-        .then(function(){
-            $("#div"+tweetid).append("Is the tweet relevant to: " + topic );
-            var relb = $('<button/>',{
-                text: "\u2714",
+        var tdiv = $('<div>',{
+            id:'div'+tweetid,
+            class:'tweet-div'
+        });
+        $("#tweets").append(tdiv);
+        //twttr.widgets.createTweet(tweetid,document.getElementById('div'+tweetid),{})
+        //.then(function(){
+        var tbrowser = $('<span />',{
+            class : "topic-span",
+            style : "background-color:lightblue;width:100%",
+            text : "Click here to open tweet!",
+            click : function(){
+                var ref = window.open(encodeURI('http://gladius.cs.uwaterloo.ca/tweet.html?tweet='+tweetid),'_blank','location=no')
+            }
+        });
+        $("#div"+tweetid).append(tbrowser)
+            var tspan = $('<span />',{
+                class:"topic-span",
+                text: "Topic: " + topic 
+            });
+            $("#div"+tweetid).append(tspan).append("<br/>");//"Topic: " + topic + "<br />");
+            var relb = $('<span/>',{
                 id:'rel'+tweetid,
-                class: "judge rel",
+                class: "judge rel glyphicon glyphicon-plus",
                 click: function(){
-                  $("#div"+tweetid).remove();
-        
-                  $.ajax({
-                    type: "POST",
-                    url: hostname + "/judge/"+topid+"/"+tweetid+"/"+"1"
-                  });
+                    app.removeTweet(topid,tweetid,"2")    
                 }
             });
-            var nrelb = $('<button/>',{
-                text: "\u2718",
+            var nrelb = $('<span/>',{
                 id:'rel'+tweetid,
-                class: "judge nrel",
+                class: "judge nrel glyphicon glyphicon-minus",
                 click:function(){
-                  $("#div"+tweetid).remove();
-        
-                  $.ajax({
-                    type: "POST",
-                    url: hostname + "/judge/"+topid+"/"+tweetid+"/"+"1"
-                  });
+                    app.removeTweet(topid,tweetid,"-1")
                 }
-
+            });
+            var repb = $('<span/>',{
+                id:'rel'+tweetid,
+                class: "judge rep glyphicon glyphicon-refresh",
+                click:function(){
+                    app.removeTweet(topid,tweetid,"1")
+                }
             });
             $("#div"+tweetid).append(relb); 
-            $("#div"+tweetid).append(nrelb); 
+            $("#div"+tweetid).append(nrelb);
+            $("#div"+tweetid).append(repb) 
+        //});
+    },
+    // Update DOM on a Received Event
+    receivedEvent: function(id) {
+        var push = PushNotification.init({
+            android : { senderID : GCM_SERVER},
+            ios : {
+                "sound" : true,
+                "vibration" : true,
+                "badge" : true
+            }
+        });
+        push.on('registration',function (data){
+
+            if ( data.registrationId.length > 0 )
+            {
+                regid = data.registrationId
+                var oldRegId = localStorage.getItem('registrationId');
+                if (oldRegId !== regid) {
+                    // Save new registration ID
+                    localStorage.setItem('registrationId', data.registrationId);
+                    // Post registrationId to your app server as the value has changed
+                }
+                console.log(navigator.network.connection.type)
+                console.log(twttr)
+                console.log(twttr.widgets)
+                    $.ajax({
+                        type: "POST",
+                        url: hostname + "/register/mobile",
+                        data: JSON.stringify({"regid" : regid,"partid":$("#login-input").val(),"device":device.platform}),
+                        contentType : "application/json",
+                        crossDomain: true,
+                        cache: false,
+                        dataType: "json"
+                    }).fail(function(obj,err,thrown){
+                        alert("Fail: " + err + " " + thrown);
+                        console.log(hostname)
+                        console.log(obj)
+                        console.log(err)
+                        console.log(thrown)
+                    });
+
+            }
+        });
+        push.on('notification',function(data){
+            var payload = data.additionalData
+            console.log(payload)
+            console.log(payload.tweetid)
+            if ([payload.tweetid,payload.topid] in seenTweets){
+                return;
+            }
+            if ( paused ){
+                tweetQueue.push({"tweetid":payload.tweetid,"topic":payload.topic,"topid":payload.topid})
+            }else {
+                console.log(twttr)
+                app.addTweet(payload.tweetid,payload.topic,payload.topid);
+            }
+            seenTweets[[payload.tweetid,payload.topid]] = true
+        });
+        push.on('error',function(error){
+            alert("Error occurred")
         });
     },
     successHandler: function(result) {
@@ -117,41 +225,5 @@ var app = {
     },
     errorHandler:function(error) {
         alert("Error found: " + error);
-    },
-    onNotificationGCM: function(e) {
-        switch( e.event )
-        {
-            case 'registered':
-                if ( e.regid.length > 0 )
-                {
-                    console.log("Regid " + e.regid);
-                    $.ajax({
-                        type: "POST",
-                        url: hostname + "/register/mobile",
-                        data: JSON.stringify({"regid" : e.regid}),
-                        contentType : "application/json",
-                        dataType: "json"
-                    }).fail(function(obj,err,thrown){
-                        alert("Fail: " + err + " " + thrown);
-                    });
-                }
-            break;
- 
-            case 'message':
-              // this is the actual push notification. its format depends on the data model from the push server
-              //alert('message = '+e.message+' msgcnt = '+e.msgcnt);
-              //twttr.widgets.createTweet(e.payload.tweetid,document.getElementById('tweet'),{});
-              app.addTweet(e.payload.tweetid,e.payload.topic,e.payload.topid);
-            break;
- 
-            case 'error':
-              alert('GCM error = '+e.msg);
-            break;
- 
-            default:
-              alert('An unknown GCM event has occurred');
-              break;
-        }
     }
 };
-

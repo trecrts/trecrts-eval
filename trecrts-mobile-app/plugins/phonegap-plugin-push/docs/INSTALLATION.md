@@ -6,13 +6,12 @@
   - [Common errors](#common-errors)
     - [minSdkVersion === 14](#minsdkversion--14)
 	- [Multidex](#multidex)
-	- [More than one library with package name 'com.google.android.gms'](#more-than-one-library-with-package-name-comgoogleandroidgms)
 - [iOS details](#ios-details)
   - [XCode](#xcode)
   - [Bitcode](#bitcode)
 - [Additional Resources](#additional-resources)
 
-This requires phonegap/cordova CLI 5.0+ ( current stable v1.6.2 )
+This requires phonegap/cordova CLI 5.0+ ( current stable v1.6.0 )
 
 ```
 phonegap plugin add phonegap-plugin-push --variable SENDER_ID="XXXXXXX"
@@ -37,19 +36,6 @@ cordova plugin add https://github.com/phonegap/phonegap-plugin-push --variable S
 
 Where the `XXXXXXX` in `SENDER_ID="XXXXXXX"` maps to the project number in the Google Developer Console. If you are not creating an Android application you can put in anything for this value.
 
-> Note: if you are using ionic you may need to specify the SENDER_ID variable in your package.json.
-
-```
-  "cordovaPlugins": [
-    {
-      "variables": {
-        "SENDER_ID": "XXXXXXX"
-      },
-      "locator": "phonegap-plugin-push"
-    }
-  ]
-```
-
 ## Android details
 
 ### Compilation
@@ -59,7 +45,7 @@ As of version 1.3.0 the plugin has been switched to using Gradle/Maven for build
 You will need to ensure that you have installed the following items through the Android SDK Manager:
 
 - Android Support Library version 23 or greater
-- Local Maven repository for Support Libraries (formerly Android Support Repository) version 20 or greater
+- Android Support Repository version 20 or greater
 - Google Play Services version 27 or greater
 - Google Repository version 22 or greater
 
@@ -145,7 +131,7 @@ Common plugins to suffer from this outdated dependency management are plugins re
 
 #### More than one library with package name 'com.google.android.gms'
 
-When some other packages include `cordova-google-play-services` as a dependency, such as is the case with the cordova-admob and cordova-plugin-analytics plugins, it is impossible to also add the phonegap-plugin-push, for the following error will rise during the build process:
+When some other packages include cordova-google-play-services as cordova-admob or cordova-plugin-analytics is not possible add the phonegap-plugin-push because during the build process you'll get this error:
 
 ```
 :processDebugResources FAILED

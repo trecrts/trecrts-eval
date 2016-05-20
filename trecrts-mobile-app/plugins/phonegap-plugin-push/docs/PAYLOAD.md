@@ -432,7 +432,7 @@ Your notification can include action buttons. If you wish to include an icon alo
     	"message": "Scrum: Daily touchbase @ 10am Please be on time so we can cover everything on the agenda.",
         "actions": [
     		{ "icon": "emailGuests", "title": "EMAIL GUESTS", "callback": "app.emailGuests", "foreground": true},
-    		{ "icon": "snooze", "title": "SNOOZE", "callback": "app.snooze", "foreground": false}
+    		{ "icon": "snooze", "title": "SNOOZE", "callback": "app.snooze", "foreground": false},
     	]
     }
 }
@@ -752,7 +752,7 @@ For example:
 var push = PushNotification.init({
 	"ios": {
 		"sound": "true",
-		"alert": "true",
+		"vibration": "true",
 		"badge": "true",
 		"clearBadge": "true"
 	}
@@ -782,7 +782,7 @@ Your notification can include action buttons. For iOS 8+ you must setup the poss
 var push = PushNotification.init({
 	"ios": {
 		"sound": true,
-		"alert": true,
+		"vibration": true,
 		"badge": true,
 		"categories": {
 			"invite": {

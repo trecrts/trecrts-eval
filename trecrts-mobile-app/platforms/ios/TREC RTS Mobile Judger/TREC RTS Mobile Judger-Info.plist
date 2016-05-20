@@ -28,24 +28,19 @@
     <string>0.0.1</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
-    <key>NSMainNibFile</key>
-    <string/>
-    <key>NSMainNibFile~ipad</key>
-    <string/>
-    <key>UIRequiresFullScreen</key>
-    <true/>
     <key>NSAppTransportSecurity</key>
     <dict>
       <key>NSAllowsArbitraryLoads</key>
       <true/>
     </dict>
+    <key>NSMainNibFile~ipad</key>
+    <string/>
     <key>UIBackgroundModes</key>
     <array>
+      <string>fetch</string>
       <string>remote-notification</string>
     </array>
-    <key>GCM_SENDER_ID</key>
-    <string>FOO</string>
-    <key>IS_GCM_ENABLED</key>
+    <key>UIRequiresFullScreen</key>
     <true/>
   </dict>
 </plist>

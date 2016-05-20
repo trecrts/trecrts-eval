@@ -1,21 +1,85 @@
 {
-    "cordova-plugin-whitelist": {
+    "phonegap-plugin-push": {
+        "source": {
+            "type": "registry",
+            "id": "phonegap-plugin-push@1.6.0"
+        },
+        "is_top_level": true,
+        "variables": {
+            "SENDER_ID": "Foo"
+        }
+    },
+    "cordova-plugin-wkwebview-engine": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-wkwebview-engine"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-statusbar": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-statusbar"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-console": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-console"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-network-information": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-network-information"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-device": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-device"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-transport-security": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-transport-security"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "sk.kcorp.cordova.ios-security": {
         "source": {
             "type": "git",
-            "url": "https://github.com/apache/cordova-plugin-whitelist.git",
+            "url": "https://github.com/robertklein/cordova-ios-security.git",
             "subdir": "."
         },
         "is_top_level": true,
         "variables": {}
     },
-    "phonegap-plugin-push": {
+    "cordova-plugin-whitelist": {
         "source": {
             "type": "registry",
-            "id": "phonegap-plugin-push"
+            "id": "cordova-plugin-whitelist@latest"
         },
         "is_top_level": true,
-        "variables": {
-            "SENDER_ID": "FOO"
-        }
+        "variables": {}
+    },
+    "cordova-plugin-inappbrowser": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-inappbrowser"
+        },
+        "is_top_level": true,
+        "variables": {}
     }
 }

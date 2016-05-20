@@ -6,7 +6,7 @@ var mysql = require('mysql')
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var winston = require('winston')
-winston.emitErrs = true;
+/*winston.emitErrs = true;
 require('winston-mysql-transport').Mysql;
 
 var logger = new winston.Logger({
@@ -30,7 +30,7 @@ logger.stream = {
   write: function(message,encoding){
     logger.info(message) 
   }
-}
+}*/
 var app = express();
 app.io = require('socket.io')()
 
@@ -40,6 +40,8 @@ var config = {host : 'localhost', database : 'trec_rts',connectionLimit:20};
 var connection = mysql.createPool(config);
 
 app.use(function(req,res,next){
+  res.header('Access-Control-Allow-Origin',"*");
+  res.header('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept')
   req.setTimeout(0)
   res.setTimeout(0)
   req.db = connection;
@@ -52,7 +54,8 @@ app.use(function(req,res,next){
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(morgan('combined',{'stream':logger.stream}))
+//app.use(morgan('combined',{'stream':logger.stream}))
+app.use(morgan('dev'))
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 

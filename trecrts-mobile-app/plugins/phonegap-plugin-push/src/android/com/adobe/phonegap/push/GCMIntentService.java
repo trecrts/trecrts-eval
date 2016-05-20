@@ -16,8 +16,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.app.NotificationCompat.WearableExtender;
 import android.text.Html;
 import android.util.Log;
 
@@ -335,7 +333,6 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
         if (actions != null) {
             try {
                 JSONArray actionsArray = new JSONArray(actions);
-                ArrayList<NotificationCompat.Action> wActions = new ArrayList<NotificationCompat.Action>();
                 for (int i=0; i < actionsArray.length(); i++) {
                     Log.d(LOG_TAG, "adding action");
                     JSONObject action = actionsArray.getJSONObject(i);
@@ -358,18 +355,10 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
                         intent.putExtra(NOT_ID, notId);
                         pIntent = PendingIntent.getBroadcast(this, i, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                     }
-                    NotificationCompat.Action wAction =
-                    new NotificationCompat.Action.Builder(resources.getIdentifier(action.optString(ICON, ""), DRAWABLE, packageName),
-                            action.getString(TITLE), pIntent)
-                            .build();
-                    wActions.add(wAction);
+
                     mBuilder.addAction(resources.getIdentifier(action.optString(ICON, ""), DRAWABLE, packageName),
                             action.getString(TITLE), pIntent);
-                    wAction = null;
-                    pIntent = null;
                 }
-                mBuilder.extend(new WearableExtender().addActions(wActions));
-                wActions.clear();
             } catch(JSONException e) {
                 // nope
             }
@@ -531,7 +520,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
 
     private void setNotificationLargeIcon(Bundle extras, String packageName, Resources resources, NotificationCompat.Builder mBuilder) {
         String gcmLargeIcon = extras.getString(IMAGE); // from gcm
-        if (gcmLargeIcon != null && !"".equals(gcmLargeIcon)) {
+        if (gcmLargeIcon != null) {
             if (gcmLargeIcon.startsWith("http://") || gcmLargeIcon.startsWith("https://")) {
                 mBuilder.setLargeIcon(getBitmapFromURL(gcmLargeIcon));
                 Log.d(LOG_TAG, "using remote large-icon from gcm");
@@ -561,11 +550,11 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
     private void setNotificationSmallIcon(Context context, Bundle extras, String packageName, Resources resources, NotificationCompat.Builder mBuilder, String localIcon) {
         int iconId = 0;
         String icon = extras.getString(ICON);
-        if (icon != null && !"".equals(icon)) {
+        if (icon != null) {
             iconId = resources.getIdentifier(icon, DRAWABLE, packageName);
             Log.d(LOG_TAG, "using icon from plugin options");
         }
-        else if (localIcon != null && !"".equals(localIcon)) {
+        else if (localIcon != null) {
             iconId = resources.getIdentifier(localIcon, DRAWABLE, packageName);
             Log.d(LOG_TAG, "using icon from plugin options");
         }
@@ -578,14 +567,14 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
 
     private void setNotificationIconColor(String color, NotificationCompat.Builder mBuilder, String localIconColor) {
         int iconColor = 0;
-        if (color != null && !"".equals(color)) {
+        if (color != null) {
             try {
                 iconColor = Color.parseColor(color);
             } catch (IllegalArgumentException e) {
                 Log.e(LOG_TAG, "couldn't parse color from android options");
             }
         }
-        else if (localIconColor != null && !"".equals(localIconColor)) {
+        else if (localIconColor != null) {
             try {
                 iconColor = Color.parseColor(localIconColor);
             } catch (IllegalArgumentException e) {

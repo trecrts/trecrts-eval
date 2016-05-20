@@ -1,50 +1,5 @@
 # Change Log
 
-## [1.6.1](https://github.com/phonegap/phonegap-plugin-push/tree/1.6.1) (2016-03-23)
-[Full Changelog](https://github.com/phonegap/phonegap-plugin-push/compare/1.6.0...1.6.1)
-
-**Fixed bugs:**
-
-- App crashes on notification when in background [\#715](https://github.com/phonegap/phonegap-plugin-push/issues/715)
-
-**Closed issues:**
-
-- Memory Leak when call `push.on\('registration'`. so `Push Plugin register called` not called [\#743](https://github.com/phonegap/phonegap-plugin-push/issues/743)
-- l [\#739](https://github.com/phonegap/phonegap-plugin-push/issues/739)
-- \[testing issue template\] ignore me [\#717](https://github.com/phonegap/phonegap-plugin-push/issues/717)
-- Incorrect init option "vibration" in a few ios samples on PAYLOAD.md [\#713](https://github.com/phonegap/phonegap-plugin-push/issues/713)
-- android M wear case [\#691](https://github.com/phonegap/phonegap-plugin-push/issues/691)
-- Incorrect document detailing \(PHONEGAP\_BUILD.md\) [\#686](https://github.com/phonegap/phonegap-plugin-push/issues/686)
-- Windows Phone 8.1, not fired plugin methods [\#526](https://github.com/phonegap/phonegap-plugin-push/issues/526)
-
-## [1.6.0](https://github.com/phonegap/phonegap-plugin-push/tree/1.6.0) (2016-03-09)
-[Full Changelog](https://github.com/phonegap/phonegap-plugin-push/compare/1.5.3...1.6.0)
-
-**Implemented enhancements:**
-
-- Background processing with coldstart on iOS [\#583](https://github.com/phonegap/phonegap-plugin-push/issues/583)
-
-**Fixed bugs:**
-
-- Android: notification does not dismiss after selection button \(1.6.x dev\) [\#610](https://github.com/phonegap/phonegap-plugin-push/issues/610)
-
-**Closed issues:**
-
-- XDK doesn't work with v1.5.x. Are you going to have a non-gradle version for v1.5.x [\#675](https://github.com/phonegap/phonegap-plugin-push/issues/675)
-- emoji support [\#668](https://github.com/phonegap/phonegap-plugin-push/issues/668)
-- iOS sound not found \[edited with new debug info\] [\#667](https://github.com/phonegap/phonegap-plugin-push/issues/667)
-- Push notification register APN to GCM Problem [\#665](https://github.com/phonegap/phonegap-plugin-push/issues/665)
-- IOS Never fire the registration event [\#659](https://github.com/phonegap/phonegap-plugin-push/issues/659)
-- Badge count inaccurate [\#651](https://github.com/phonegap/phonegap-plugin-push/issues/651)
-- Android Icon options in phonegap-plugin-push@1.2.3  [\#648](https://github.com/phonegap/phonegap-plugin-push/issues/648)
-- Getting same registration id when re-register  [\#641](https://github.com/phonegap/phonegap-plugin-push/issues/641)
-- Callback not called unless you register to GCM everytime you open the app [\#626](https://github.com/phonegap/phonegap-plugin-push/issues/626)
-- How to make GCM show alert automatically ios [\#602](https://github.com/phonegap/phonegap-plugin-push/issues/602)
-- Shoddy image for notification icon,status bar icon? [\#587](https://github.com/phonegap/phonegap-plugin-push/issues/587)
-- ERROR: Plugin 'PushNotification' not found [\#568](https://github.com/phonegap/phonegap-plugin-push/issues/568)
-- ar [\#533](https://github.com/phonegap/phonegap-plugin-push/issues/533)
-- No sound and vibration for GCM when built with Cordova but Ok with PhoneBuild [\#520](https://github.com/phonegap/phonegap-plugin-push/issues/520)
-
 ## [1.5.3](https://github.com/phonegap/phonegap-plugin-push/tree/1.5.3) (2016-01-14)
 [Full Changelog](https://github.com/phonegap/phonegap-plugin-push/compare/1.5.2...1.5.3)
 

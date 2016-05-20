@@ -1,12 +1,25 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.trecrts.judgingapp" version="0.0.1" xmlns="http://www.w3.org/ns/widgets">
     <preference name="loglevel" value="DEBUG" />
+    <feature name="PushNotification">
+        <param name="android-package" value="com.adobe.phonegap.push.PushPlugin" />
+    </feature>
+    <feature name="StatusBar">
+        <param name="android-package" value="org.apache.cordova.statusbar.StatusBar" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="NetworkStatus">
+        <param name="android-package" value="org.apache.cordova.networkinformation.NetworkManager" />
+    </feature>
+    <feature name="Device">
+        <param name="android-package" value="org.apache.cordova.device.Device" />
+    </feature>
     <feature name="Whitelist">
         <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
     </feature>
-    <feature name="PushNotification">
-        <param name="android-package" value="com.adobe.phonegap.push.PushPlugin" />
+    <feature name="InAppBrowser">
+        <param name="android-package" value="org.apache.cordova.inappbrowser.InAppBrowser" />
     </feature>
     <allow-intent href="market:*" />
     <param name="android-package" value="org.apache.cordova.core.NetworkManager" />
@@ -18,12 +31,21 @@
         Adam Roegiest and the TREC RTS coordinators
     </author>
     <preference name="android-minSdkVersion" value="14" />
+    <preference name="webviewbounce" value="false" />
+    <preference name="auto-hide-splash-screen" value="true" />
     <content src="index.html" />
-    <access origin="*" />
+    <access origin="*" subdomain="true" />
+    <access origin="http://*" />
+    <access origin="https://*" />
+    <allow-navigation href="*" subdomain="true" />
+    <allow-navigation href="http://*/*" />
+    <allow-navigation href="https://*/*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarStyle" value="default" />
 </widget>

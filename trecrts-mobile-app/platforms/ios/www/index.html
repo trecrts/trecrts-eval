@@ -10,7 +10,7 @@
     "License"); you may not use this file except in compliance
     with the License.  You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    https://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
@@ -24,21 +24,36 @@
         <meta charset="utf-8" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="msapplication-tap-highlight" content="no" />
+<!--         <meta  http-equiv="Content-Security-Policy" content="default-src * gap: https://gladius.cs.uwaterloo.ca https://platform.twitter.com/ 'unsafe-inline'; connect-src https://gladius.cs.uwaterloo.ca https://platform.twitter.com/ https://api.ipify.org/" /> -->
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
         <link rel="stylesheet" type="text/css" href="css/index.css" />
-        <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"> -->
-        <script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
-        <script type="text/javascript" src="js/PushNotification.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+        <script type="text/javascript" src="lib/fastclick.js"></script>
+        <script type="text/javascript" src="lib/widgets.js"> </script>
+        <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
+<!--         <script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script> -->
+        <script type="text/javascript" src="js/index.js"></script>
+
         <title>TREC RTS Mobile Assessor</title>
 
     </head>
     <body>
         <div class="app">
+            <div id="nav">
+                <div id="login-box">
+                    <input type="text" placeholder="Userid" id="login-input">
+                    <span id="login" class="glyphicon glyphicon-log-in"> </span>
+                </div>
+                <div id="logout-box">
+                    <span class="logout-info" >Logged in as:</span> <span class="logout-info" id="userid"></span>
+                    <span id="logout" class="glyphicon glyphicon-log-out"> </span>
+                </div>
+            </div>
             <div id="tweets"></div>
         </div>
         <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
+
         <script type="text/javascript">
             app.initialize();
         </script>

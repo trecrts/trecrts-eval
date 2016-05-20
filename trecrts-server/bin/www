@@ -7,6 +7,11 @@
 var app = require('../app');
 var debug = require('debug')('trecrts:server');
 var http = require('http');
+var https = require('https');
+var fs = require('fs')
+var privateKey = fs.readFileSync('server.key','utf8');
+var certificate = fs.readFileSync('server.crt','utf8');
+var credentials = {key : privateKey, cert: certificate,secureMethod:'TLSv1_2'};
 
 /**
  * Get port from environment and store in Express.
@@ -20,12 +25,18 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+var httpsServer = https.createServer(credentials,app);
 app.io.attach(server);
 /**
  * Listen on provided port, on all network interfaces.
  */
 server.setTimeout(0)
 server.listen(port);
+httpsServer.setTimeout(0);
+httpsServer.listen(443);
+httpsServer.on('error',onError);
+httpsServer.on('listening',onListening);
+
 server.on('error', onError);
 server.on('listening', onListening);
 

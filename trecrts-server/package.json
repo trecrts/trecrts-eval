@@ -14,6 +14,7 @@
     "serve-favicon": "~2.2.0",
     "node-gcm": "latest",
     "mysql" : "latest",
-    "socket.io" : "latest"
+    "socket.io" : "latest",
+    "apn" : "latest"
   }
 }
