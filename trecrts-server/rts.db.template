@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.19, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.28, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: trec_rts
 -- ------------------------------------------------------
--- Server version	5.6.19-0ubuntu0.14.04.1
+-- Server version	5.6.28-0ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -26,7 +26,7 @@ CREATE TABLE `clients` (
   `groupid` text,
   `clientid` varchar(12) DEFAULT NULL,
   `ip` varchar(30) DEFAULT NULL,
-  `register_time` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `register_time` datetime DEFAULT CURRENT_TIMESTAMP,
   KEY `groupid` (`groupid`(40),`clientid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -75,7 +75,7 @@ CREATE TABLE `judgements_template` (
   `assessor` text,
   `tweetid` text,
   `rel` int(11) DEFAULT '0',
-  `submitted` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `submitted` datetime DEFAULT CURRENT_TIMESTAMP,
   KEY `assessor` (`assessor`(40),`tweetid`(40),`rel`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -90,78 +90,28 @@ LOCK TABLES `judgements_template` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `judgements_test1`
+-- Table structure for table `participants`
 --
 
-DROP TABLE IF EXISTS `judgements_test1`;
+DROP TABLE IF EXISTS `participants`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `judgements_test1` (
-  `assessor` text,
-  `tweetid` text,
-  `rel` int(11) DEFAULT '0',
-  `submitted` timestamp DEFAULT CURRENT_TIMESTAMP,
-  KEY `assessor` (`assessor`(40),`tweetid`(40),`rel`)
+CREATE TABLE `participants` (
+  `partid` varchar(40) NOT NULL,
+  `email` text,
+  `deviceid` text,
+  PRIMARY KEY (`partid`),
+  KEY `partid` (`partid`,`deviceid`(40))
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `judgements_test1`
+-- Dumping data for table `participants`
 --
 
-LOCK TABLES `judgements_test1` WRITE;
-/*!40000 ALTER TABLE `judgements_test1` DISABLE KEYS */;
-/*!40000 ALTER TABLE `judgements_test1` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `judgements_test2`
---
-
-DROP TABLE IF EXISTS `judgements_test2`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `judgements_test2` (
-  `assessor` text,
-  `tweetid` text,
-  `rel` int(11) DEFAULT '0',
-  `submitted` timestamp DEFAULT CURRENT_TIMESTAMP,
-  KEY `assessor` (`assessor`(40),`tweetid`(40),`rel`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `judgements_test2`
---
-
-LOCK TABLES `judgements_test2` WRITE;
-/*!40000 ALTER TABLE `judgements_test2` DISABLE KEYS */;
-/*!40000 ALTER TABLE `judgements_test2` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `judgements_test3`
---
-
-DROP TABLE IF EXISTS `judgements_test3`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `judgements_test3` (
-  `assessor` text,
-  `tweetid` text,
-  `rel` int(11) DEFAULT '0',
-  `submitted` timestamp DEFAULT CURRENT_TIMESTAMP,
-  KEY `assessor` (`assessor`(40),`tweetid`(40),`rel`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `judgements_test3`
---
-
-LOCK TABLES `judgements_test3` WRITE;
-/*!40000 ALTER TABLE `judgements_test3` DISABLE KEYS */;
-/*!40000 ALTER TABLE `judgements_test3` ENABLE KEYS */;
+LOCK TABLES `participants` WRITE;
+/*!40000 ALTER TABLE `participants` DISABLE KEYS */;
+/*!40000 ALTER TABLE `participants` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -174,7 +124,7 @@ DROP TABLE IF EXISTS `requests_template`;
 CREATE TABLE `requests_template` (
   `topid` text,
   `tweetid` text,
-  `submitted` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `submitted` datetime DEFAULT CURRENT_TIMESTAMP,
   KEY `topid` (`topid`(40),`tweetid`(40))
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -189,6 +139,30 @@ LOCK TABLES `requests_template` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `topic_assignments`
+--
+
+DROP TABLE IF EXISTS `topic_assignments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `topic_assignments` (
+  `topid` varchar(40) NOT NULL,
+  `partid` varchar(40) DEFAULT NULL,
+  PRIMARY KEY (`topid`),
+  KEY `topid` (`topid`,`partid`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `topic_assignments`
+--
+
+LOCK TABLES `topic_assignments` WRITE;
+/*!40000 ALTER TABLE `topic_assignments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `topic_assignments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `topics`
 --
 
@@ -196,9 +170,11 @@ DROP TABLE IF EXISTS `topics`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `topics` (
-  `topid` varchar(20) DEFAULT NULL,
-  `query` text,
-  KEY `topid` (`topid`,`query`(40))
+  `topid` varchar(20) NOT NULL,
+  `title` text,
+  `body` text,
+  PRIMARY KEY (`topid`),
+  KEY `topid` (`topid`,`title`(40),`body`(40))
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -208,7 +184,7 @@ CREATE TABLE `topics` (
 
 LOCK TABLES `topics` WRITE;
 /*!40000 ALTER TABLE `topics` DISABLE KEYS */;
-INSERT INTO `topics` VALUES ('test1','birthday'),('test2','batman'),('test3','star wars');
+INSERT INTO `topics` VALUES ('test000','Batman','All tweets relating to Batman and associated entities.');
 /*!40000 ALTER TABLE `topics` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -221,4 +197,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-11-11 12:00:17
+-- Dump completed on 2016-05-22 15:45:14
