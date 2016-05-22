@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $("form").submit(function(e){
+        e.preventDefault()
+        var data = {}
+        $.each($(this).serializeArray(),function(){
+          data[this.name]=this.value
+        });
+        $.ajax({
+          type : "POST"
+          url : "/topic/suggest",
+          data JSON.stringify(data),
+          success : function(){
+            alert("Topic suggested!");
+            $(this).trriger("reset");
+          },
+          fail : function(resp){
+            alert("Suggestion failed: " + resp.message);
+          }
+        });
+      });
+    });
+  </script>
+
+  <title>TREC RTS Topic Suggester</title>
+
+</head>
+<body>
+  <form id="suggestion" action="">
+    <table>
+    <tr><td>Identifier:</td><td> <input type="text" name="uniqid" required></td></tr>
+    <tr><td>Query: </td><td><input type="text" name="title" required></td></tr>
+    <tr><td>Description:</td><td> <textarea cols="50" rows="4"  name="desc" required> </textarea></td></tr>
+    </table>
+    <input type="submit" value="Do Suggest!">
+  </form>
+</body>
+</html>

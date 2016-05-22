@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html ng-app="rtsapp">
+<head>
+  <meta charset="utf-8" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
+  <script type="text/javascript" src="js/angular.min.js"></script>
+  <script type="text/javascript" src="js/topic-app.js"></script>
+  <title>TREC RTS Topic Assigner</title>
+
+</head>
+<body ng-controller="TopicCtrl">
+  <div id="div-login" >
+    <form id="form-login" action="" ng-show="! validated">
+      <table>
+      <tr><td> Assessor ID:</td><td> <input type="text" ng-model="uniqid" name="uniqid" required></td></tr>
+      </table>
+      <input type="submit" ng-click="validateUser(uniqid)" value="Show Topics!">
+    </form>
+  </div>
+  <div id="div-loggedin" ng-show="validated">
+  Assessor ID: <span id="partid" style="font-weight:strong">{{uniqid}}</span>
+  </div>
+  <div id="div-topics" ng-show="validated">
+  <table>
+  <tr ng-repeat="topic in topics">
+    <td><input type="checkbox" ng-model="topic.checked" ng-change="isAvailable(topic.topid,topic.checked)" ng-disabled="topic.disabled"></td>
+    <td> 
+      <table>
+      <tr><td><b>Query:</b></td><td>{{topic.title}}</td></tr>
+      <tr><td><b>Description:</b></td><td>{{topic.desc}}</td></tr>
+      </table>
+    </td>
+  </tr>
+  </table>
+  <input type="button" ng-click="requestTopics()" value="Do Request Topics!" />
+  </div>
+</body>
+</html>

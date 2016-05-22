@@ -15,6 +15,7 @@
     "node-gcm": "latest",
     "mysql" : "latest",
     "socket.io" : "latest",
-    "apn" : "latest"
+    "apn" : "latest",
+    "winston" : "latest"
   }
 }

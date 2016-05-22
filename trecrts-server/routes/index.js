@@ -10,7 +10,8 @@ module.exports = function(io){
   var registrationIds = [];
   var regIdx = 0;
   var tweet_queue = [];
-  var RATE_LIMIT = 1000;
+  const RATE_LIMIT = 1000;
+  const MAX_ASS = 3;
   function genID(){
     var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     var ID = '';
@@ -20,6 +21,13 @@ module.exports = function(io){
   }
   function send_tweet_socket(tweet,socket){
     socket.emit('tweet',tweet);
+  }
+  function find_user(partid){
+    for (var idx = 0; idx < registrationIds.length; idx++){
+      if(registrationIds[idx].partid === partid)
+        return idx;
+    }
+    return -1;
   }
   function send_tweet_gcm(tweet,id){
     var message = new gcm.Message();
@@ -102,22 +110,41 @@ module.exports = function(io){
     var regid = req.body.regid;
     var partid = req.body.partid;
     var device = req.body.device;
-    console.log(device)
     // At least one reg id required
-    if ( registrationIds.indexOf(regid) === -1){
-      if (device === "iOS")
-        registrationIds.push({'type':'apn','conn':regid});
-      else
-        registrationIds.push({'type':'gcm','conn':regid});
-    }
-    res.status(204).send();
-    // Definitely need to do something better here
-    if(tweet_queue.length > 0){
-      for(var i = 0; i < tweet_queue.length; i++){
-        send_tweet(tweet_queue[i]);
+    db.query('select * from participants where partid = ?;',partid,function(errors0,results0){
+      if(errors0 || results0.length === 0){
+        res.status(500).json({'message':'Unable to identify participant: ' + partid});
+        return;
       }
-      tweet_queue = [];
-    }
+      var idx = find_partid(partid)
+      if ( idx === -1 ){
+        if (device === "iOS")
+          registrationIds.push({'partid':partid,'type':'apn','conn':regid});
+        else
+          registrationIds.push({'partid':partid,'type':'gcm','conn':regid});
+        db.query('update table set deviceid = ? where partid = ?;',[regid,partid],function(errors1,results1){
+          if(errors1){
+            console.log('Unable to update device for partid: ', partid, regid);
+          }
+       });
+      }else{
+         registrationIds[idx].conn = regid;
+         registrationIds[idx].type = device
+         db.query('update table set deviceid = ? where partid = ?;',[regid,partid],function(errors1,results1){
+           if(errors1){
+             console.log('Unable to update device for partid: ', partid, regid);
+           }
+         });
+      }
+      res.status(204).send();
+      // Definitely need to do something better here
+      if(tweet_queue.length > 0){
+        for(var i = 0; i < tweet_queue.length; i++){
+          send_tweet(tweet_queue[i]);
+        }
+        tweet_queue = [];
+      }
+    });
   });
   
   router.post('/tweets/:topid/:clientid',function(req,res){
@@ -248,21 +275,24 @@ module.exports = function(io){
     });
   });
   
-  router.get('/topics/:uniqid', function(req,res){
-    var uniqid = req.params.uniqid;
+  router.get('/topics/available/:uniqid/:topid', function(req,res){
     var db = req.db;
-    validate_client_or_participant(db,uniqid,function(errors,results){
+    var uniqid = req.params.uniqid;
+    var topid = req.params.topid;
+    validate_client_or_participant(db,uniqid,function(errors0,results0){
       if(errors || results.length === 0){
-        console.log(errors);
-        res.status(500).json({'message':'Unable to validate client: ' + uniqid});
+        res.status(500).({'message':'Unable to validate ID:' + uniqid});
         return;
       }
-      db.query('select topid,query from topics;',function(errors1,results1){
-        if(errors1){
-          res.status(500).json({'message':'Unable to retrieve topics for client: ' + uniqid});
-        }else{
-          res.json(results1);
+      db.query('select count(*) as cnt where topic_assignments where topid = ?;',topid,function(errors1,results1){
+        if(errors1 || results1.length === 0){
+          res.status(500).json({'message';'Error in determining topic availability.'});
+          return;
+        }else if(results1[0].cnt >= MAX_ASS){
+          res.status(404).json({'message':'Sufficient assessors'});
+          return;
         }
+        res.status(204).send();
       });
     });
   });
@@ -292,7 +322,6 @@ module.exports = function(io){
   });
   router.get('/topics/interest/:partid',function(req,res){
     var partid = req.params.partid;
-    var topids = req.body.topids;
     var db = req.db;
     validate_participant(db,partid,function(errors0,results0){
       if(errors0 || results0.length === 0){
@@ -332,24 +361,42 @@ module.exports = function(io){
       });
     });
   });
-  router.delete('/unregister/mobile/:regid',function(req,res){
-    var regid = req.params.regid
-    var idx = registrationIds.indexOf({"type":"gcm","conn":regid})
+  router.delete('/unregister/mobile/:partid',function(req,res){
+    var partid = req.params.partid
+    var idx = find_user(partid)
     if (idx > -1) registrationIds.splice(idx,1)
+  });
+  router.get('/topics/:uniqid', function(req,res){
+    var uniqid = req.params.uniqid;
+    var db = req.db;
+    validate_client_or_participant(db,uniqid,function(errors,results){
+      if(errors || results.length === 0){
+        console.log(errors);
+        res.status(500).json({'message':'Unable to validate ID: ' + uniqid});
+        return;
+      }
+      db.query('select topid,query from topics;',function(errors1,results1){
+        if(errors1){
+          res.status(500).json({'message':'Unable to retrieve topics for client: ' + uniqid});
+        }else{
+          res.json(results1);
+        }
+      });
+    });
   });
 
 
   io.on('connection', function(socket){
     socket.on('register',function(){
       console.log("Registered")
-      registrationIds.push({'type':'socket','conn':socket});
+      registrationIds.push({'partid':socket,'type':'socket','conn':socket});
     });
     socket.on('judge',function(msg){
       console.log('Judged: ', msg.topid, msg.tweetid,msg.rel);
     });
     socket.once('disconnect',function(){
       console.log("Disconnect");
-      var idx = registrationIds.indexOf(socket);
+      var idx = find_user(socket);
       if (idx > -1) registrationIds.splice(idx,1);
     });
   });
