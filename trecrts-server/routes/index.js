@@ -9,7 +9,6 @@ module.exports = function(io){
   var sender = new gcm.Sender(push_auths.gcm);
   var registrationIds = [];
   var regIdx = 0;
-  var tweet_queue = [];
   const RATE_LIMIT = 1000;
   const MAX_ASS = 3;
   function genID(){
@@ -52,17 +51,17 @@ module.exports = function(io){
   }
 
 
-  function send_tweet(tweet){
-    var currDevice = registrationIds[regIdx++];
-    if(currDevice['type'] === 'gcm')
-      send_tweet_gcm(tweet,currDevice['conn']);
-    else if(currDevice['type'] === 'socket'){
-      send_tweet_socket(tweet,currDevice['conn']);
-    } else if(currDevice['type'] === 'apn'){
-      send_tweet_apn(tweet,currDevice['conn'])
+  function send_tweet(tweet,interestIDs){
+    for (id in interestIDs){
+      var currDevice = registrationIds[find_user(id)];
+      if(currDevice['type'] === 'gcm')
+        send_tweet_gcm(tweet,currDevice['conn']);
+      else if(currDevice['type'] === 'socket'){
+        send_tweet_socket(tweet,currDevice['conn']);
+      } else if(currDevice['type'] === 'apn'){
+        send_tweet_apn(tweet,currDevice['conn'])
+      }
     }
-
-    if (regIdx >= registrationIds.length) regIdx = 0; 
   }
   
   function validate(db,table,col, id,cb){
@@ -138,12 +137,14 @@ module.exports = function(io){
       }
       res.status(204).send();
       // Definitely need to do something better here
+      /*
       if(tweet_queue.length > 0){
         for(var i = 0; i < tweet_queue.length; i++){
           send_tweet(tweet_queue[i]);
         }
         tweet_queue = [];
       }
+      */
     });
   });
   
@@ -200,13 +201,20 @@ module.exports = function(io){
             return;
            }
           db.query('select query from topics where topid = ?;',topid,function(errors2,results2){
-
+            db.query('select partid from topic_assignments where topid = ?',topid,function(errors3,results3){
+              // If no interested parties, do nothing.
+              if(results3.length !== 0){
+                send_tweet({"tweetid":tweetid,"topid":topid,"topic":results2[0].query},results3);
+              }
+            });
+            /*
             if(registrationIds.length > 0){
               send_tweet({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
             }else{
                tweet_queue.push({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});
             }
-          })
+            */
+          });
             
           res.status(204).send();
         });          
@@ -385,7 +393,8 @@ module.exports = function(io){
     });
   });
 
-
+  // TODO: Figure out way to incorporate socket based connections without requiring an actual id
+  
   io.on('connection', function(socket){
     socket.on('register',function(){
       console.log("Registered")
