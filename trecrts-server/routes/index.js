@@ -214,34 +214,34 @@ module.exports = function(io){
               return;
             }
             // If we have seen the tweet before, do nothing
-            if(results4[0].cnt !== 0){
-              res.status(204).send()
-              return;
-            }
-            // Otherwise send it out to be judged and then insert it
-            db.query('select title from topics where topid = ?;',topid,function(errors2,results2){
-              if(errors2 || results2.length === 0){
-                console.log('Something went horribly wrong');
-                res.status(500).json({'message':'could not process request for topid: ' + topid + ' and ' + tweetid});
-                return;
-              }
-              var title = results2[0].title
-              db.query('select partid from topic_assignments where topid = ?;',topid,function(errors3,results3){
-                if(errors3){
-                  console.log('Something went horribly wrong')
+            if(results4[0].cnt === 0){
+              // Otherwise send it out to be judged and then insert it
+              db.query('select title from topics where topid = ?;',topid,function(errors2,results2){
+                if(errors2 || results2.length === 0){
+                  console.log('Something went horribly wrong');
                   res.status(500).json({'message':'could not process request for topid: ' + topid + ' and ' + tweetid});
                   return;
                 }
-                if (results3.length !== 0){
-                  var ids = []
-                  for(var idx = 0; idx < results3.length; idx++){
-                    ids.push(results3[idx].partid)
+                var title = results2[0].title
+                db.query('select partid from topic_assignments where topid = ?;',topid,function(errors3,results3){
+                  if(errors3){
+                    console.log('Something went horribly wrong')
+                    res.status(500).json({'message':'could not process request for topid: ' + topid + ' and ' + tweetid});
+                    return;
                   }
-                  send_tweet({"tweetid":tweetid,"topid":topid,"topic":title},ids);
-                }
-                db.query('insert into seen_'+topid+'(tweeitid) values (?);',tweetid);
+                  if (results3.length !== 0){
+                    var ids = []
+                    for(var idx = 0; idx < results3.length; idx++){
+                      ids.push(results3[idx].partid)
+                    }
+                    send_tweet({"tweetid":tweetid,"topid":topid,"topic":title},ids);
+                  }
+                  db.query('insert into seen_'+topid+' (tweetid) values (?);',tweetid,function(errors5,results5){
+                    console.log(errors5)
+                  });
+                });
               });
-            });
+            }
           });
           res.status(204).send();
         });          
