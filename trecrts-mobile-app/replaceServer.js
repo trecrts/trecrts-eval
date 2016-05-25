@@ -3,15 +3,15 @@
 
 var fs = require("fs")
 var path = require("path")
-var root = process.argv[2]
+var rootdir = process.env.PWD
 function replace_string_in_file(filename, placeholder, realval){
   var data = fs.readFileSync(filename,'utf8')
-  var rew = new RegExp(placeholder,'g')
+  var re = new RegExp(placeholder,'g')
   var result = data.replace(re,realval)  
   fs.writeFileSync(filename,result,'utf8')
 }
 
-var srcfile = path.join(rootdir,"server-details.js")
+var srcfile = path.join(process.env.PWD,"server-details.js")
 var params=require(srcfile)
 
 var pathToReplace = {
@@ -19,8 +19,9 @@ var pathToReplace = {
   "ios" : "platforms/ios/www"
 }
 
-var platforms = process.enc.CORDOVA_PLATFORMS.split(',')
+var platforms = ['android',"ios"]
 
+console.log("Hook running for server replace")
 for(var i =0; i < platforms.length; i++){
   var platformPath = pathToReplace[platforms[i]]
   replace_string_in_file(path.join(rootdir,platformPath,'index.html'),'APISERVER',params.server)

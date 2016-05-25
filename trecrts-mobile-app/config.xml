@@ -34,6 +34,9 @@
   <allow-intent href="mailto:*" />
   <allow-intent href="geo:*" />
   <hook type="after_build" src="replaceServer.js" />
+  <hook type="after_compiles" src="replaceServer.js" />
+  <hook type="before_run" src="replaceServer.js" />
+  <hook type="after_prepare" src="replaceServer.js" />
   <platform name="android">
     <allow-intent href="market:*" />
     <param name="android-package" value="org.apache.cordova.core.NetworkManager" />

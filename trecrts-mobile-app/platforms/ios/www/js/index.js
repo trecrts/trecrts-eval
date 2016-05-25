@@ -18,15 +18,15 @@
  */
  var hostname = "http://gladius.cs.uwaterloo.ca"
  var GCM_SERVER = "412241308284"
-$.support.cors = true; 
+ $.support.cors = true; 
 //$.mobile.allowCrossDomainPages = true;
- var twttr = (function(d, s, id) {
+var twttr = (function(d, s, id) {
     var js, fjs = d.getElementsByTagName(s)[0],
     t = window.twttr || {};
     if (d.getElementById(id)) return t;
     js = d.createElement(s);
     js.id = id;
-    js.src = "//platform.twitter.com/widgets.js";
+    js.src = "https://platform.twitter.com/widgets.js";
     fjs.parentNode.insertBefore(js, fjs);
     t._e = [];
     t.ready = function(f) {
@@ -35,11 +35,12 @@ $.support.cors = true;
     return t;
 }(document, "script", "twitter-wjs"));
 
- var regid = "";
- var paused = false
- var seenTweets = {}
- var tweetQueue = []
- var app = {
+var regid = "";
+var partid = undefined;
+var paused = false
+var seenTweets = {}
+var tweetQueue = []
+var app = {
     // Application Constructor
     initialize: function() {
 
@@ -64,10 +65,9 @@ $.support.cors = true;
         //app.receivedEvent('deviceready');
         Origami.fastclick(document.body);
         $(window).on('beforeunload',function(evt){
-            console.log("I am unloading")
             $.ajax({
                 type: "DELETE",
-                url: hostname + "/unregister/mobile/"+regid
+                url: hostname + "/unregister/mobile/"+partid
             });    
         })
         document.addEventListener('pause',app.pauseApp,false)
@@ -77,23 +77,29 @@ $.support.cors = true;
         $("#logout").bind('click',app.logout);
     },
     login : function(){
-        $("#login-box").hide()
-        $("#logout-box").show()
-        $("#userid").html($("#login-input").val())
-        app.receivedEvent('deviceready')
+        if (navigator.network.connection.type !== "wifi"){
+            alert("Please only use this app with a wifi connection to conserve your data plan.")
+        }else{
+            $("#login-box").hide()
+            $("#logout-box").show()
+            partid = $("#login-input").val()
+            $("#login-input").val("")
+            $("#userid").html(partid)
+            app.receivedEvent('deviceready')
+        }
     },
     logout : function(){
         $.ajax({
             type: "DELETE",
-            url: hostname + "/unregister/mobile/"+regid
-        });  
+            url: hostname + "/unregister/mobile/"+partid
+        });
+        $("#logout-box").hide()
+        $("#login-box").show()
     },
     pauseApp : function(){
         paused = true
-        console.log("pausing app")
     },
     resumeApp : function(){
-        console.log("unpausing app")
         paused = false
         // Load queue of tweets
         tweetQueue.forEach(function(tweetInfo){
@@ -117,17 +123,17 @@ $.support.cors = true;
             class:'tweet-div'
         });
         $("#tweets").append(tdiv);
-        //twttr.widgets.createTweet(tweetid,document.getElementById('div'+tweetid),{})
-        //.then(function(){
-        var tbrowser = $('<span />',{
-            class : "topic-span",
-            style : "background-color:lightblue;width:100%",
-            text : "Click here to open tweet!",
-            click : function(){
-                var ref = window.open(encodeURI('http://gladius.cs.uwaterloo.ca/tweet.html?tweet='+tweetid),'_blank','location=no')
-            }
-        });
-        $("#div"+tweetid).append(tbrowser)
+        if(device.platform === "iOS"){
+            var tbrowser = $('<span />',{
+                class : "topic-span",
+                style : "background-color:lightblue;width:100%",
+                text : "Click here to open tweet!",
+                click : function(){
+                    var ref = window.open(encodeURI(hostname+'/tweet.html?tweet='+tweetid),'_blank','location=no')
+                }
+            });
+            $("#div"+tweetid).append(tbrowser);
+
             var tspan = $('<span />',{
                 class:"topic-span",
                 text: "Topic: " + topic 
@@ -156,8 +162,42 @@ $.support.cors = true;
             });
             $("#div"+tweetid).append(relb); 
             $("#div"+tweetid).append(nrelb);
-            $("#div"+tweetid).append(repb) 
-        //});
+            $("#div"+tweetid).append(repb)             
+        }else{
+            twttr.widgets.createTweet(tweetid,document.getElementById('div'+tweetid),{})
+            .then(function(){
+
+                var tspan = $('<span />',{
+                    class:"topic-span",
+                    text: "Topic: " + topic 
+                });
+                $("#div"+tweetid).append(tspan).append("<br/>");//"Topic: " + topic + "<br />");
+                var relb = $('<span/>',{
+                    id:'rel'+tweetid,
+                    class: "judge rel glyphicon glyphicon-plus",
+                    click: function(){
+                        app.removeTweet(topid,tweetid,"2")    
+                    }
+                });
+                var nrelb = $('<span/>',{
+                    id:'rel'+tweetid,
+                    class: "judge nrel glyphicon glyphicon-minus",
+                    click:function(){
+                        app.removeTweet(topid,tweetid,"-1")
+                    }
+                });
+                var repb = $('<span/>',{
+                    id:'rel'+tweetid,
+                    class: "judge rep glyphicon glyphicon-refresh",
+                    click:function(){
+                        app.removeTweet(topid,tweetid,"1")
+                    }
+                });
+                $("#div"+tweetid).append(relb); 
+                $("#div"+tweetid).append(nrelb);
+                $("#div"+tweetid).append(repb) 
+            });
+        }
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
@@ -179,10 +219,6 @@ $.support.cors = true;
                     // Save new registration ID
                     localStorage.setItem('registrationId', data.registrationId);
                     // Post registrationId to your app server as the value has changed
-                }
-                console.log(navigator.network.connection.type)
-                console.log(twttr)
-                console.log(twttr.widgets)
                     $.ajax({
                         type: "POST",
                         url: hostname + "/register/mobile",
@@ -193,12 +229,8 @@ $.support.cors = true;
                         dataType: "json"
                     }).fail(function(obj,err,thrown){
                         alert("Fail: " + err + " " + thrown);
-                        console.log(hostname)
-                        console.log(obj)
-                        console.log(err)
-                        console.log(thrown)
                     });
-
+                }
             }
         });
         push.on('notification',function(data){
@@ -222,8 +254,8 @@ $.support.cors = true;
     },
     successHandler: function(result) {
        //alert('Callback Success! Result = '+result);
-    },
-    errorHandler:function(error) {
-        alert("Error found: " + error);
-    }
+   },
+   errorHandler:function(error) {
+    alert("Error found: " + error);
+}
 };

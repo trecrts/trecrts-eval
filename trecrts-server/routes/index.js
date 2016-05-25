@@ -52,8 +52,12 @@ module.exports = function(io){
 
 
   function send_tweet(tweet,interestIDs){
-    for (id in interestIDs){
-      var currDevice = registrationIds[find_user(id)];
+    for (var i = 0; i < interestIDs.length; i++){
+      var id = interestIDs[i]
+      var idx = find_user(id);
+      if (idx === -1)
+        continue;
+      var currDevice = registrationIds[idx];
       if(currDevice['type'] === 'gcm')
         send_tweet_gcm(tweet,currDevice['conn']);
       else if(currDevice['type'] === 'socket'){
@@ -106,22 +110,25 @@ module.exports = function(io){
   });
 
   router.post('/register/mobile/',function(req,res){
+    var db = req.db;
     var regid = req.body.regid;
     var partid = req.body.partid;
     var device = req.body.device;
     // At least one reg id required
     db.query('select * from participants where partid = ?;',partid,function(errors0,results0){
       if(errors0 || results0.length === 0){
+        console.log(partid)
+        console.log("Here")
         res.status(500).json({'message':'Unable to identify participant: ' + partid});
         return;
       }
-      var idx = find_partid(partid)
+      var idx = find_user(partid)
       if ( idx === -1 ){
         if (device === "iOS")
           registrationIds.push({'partid':partid,'type':'apn','conn':regid});
         else
           registrationIds.push({'partid':partid,'type':'gcm','conn':regid});
-        db.query('update table set deviceid = ? where partid = ?;',[regid,partid],function(errors1,results1){
+        db.query('update participants set deviceid = ? where partid = ?;',[regid,partid],function(errors1,results1){
           if(errors1){
             console.log('Unable to update device for partid: ', partid, regid);
           }
@@ -129,7 +136,7 @@ module.exports = function(io){
       }else{
          registrationIds[idx].conn = regid;
          registrationIds[idx].type = device
-         db.query('update table set deviceid = ? where partid = ?;',[regid,partid],function(errors1,results1){
+         db.query('update participants set deviceid = ? where partid = ?;',[regid,partid],function(errors1,results1){
            if(errors1){
              console.log('Unable to update device for partid: ', partid, regid);
            }
@@ -200,13 +207,36 @@ module.exports = function(io){
             res.status(500).json({'message':'Could not process request for topid: ' + topid + ' and ' + tweetid});
             return;
            }
-          db.query('select query from topics where topid = ?;',topid,function(errors2,results2){
-            db.query('select partid from topic_assignments where topid = ?',topid,function(errors3,results3){
-              // If no interested parties, do nothing.
-              if(results3.length !== 0){
-                send_tweet({"tweetid":tweetid,"topid":topid,"topic":results2[0].query},results3);
+          db.query('select title from topics where topid = ?;',topid,function(errors2,results2){
+            if(errors2 || results2.length === 0){
+              console.log('Something went horribly wrong');
+              return;
+            }
+            var title = results2[0].title
+            db.query('select partid from topic_assignments where topid = ?;',topid,function(errors3,results3){
+              if(errors3){
+                console.log('Something went horribly wrong')
+                return;
+              }
+              if (results3.length !== 0){
+                var ids = []
+                for(var idx = 0; idx < results3.length; idx++){
+                  ids.push(results3[idx].partid)
+                }
+                send_tweet({"tweetid":tweetid,"topid":topid,"topic":title},ids);
               }
             });
+/*            db.query('select partid from topic_assignments where topid = ?;',topid,function(errors3,results3){
+              results3 = JSON.parse(JSON.stringify(results3))
+              // If no interested parties, do nothing.
+              console.log(results3)
+              if(results3.length !== 0){
+                var ids = []
+                for (var i = 0; i < results3.length; i++)
+                  ids.push(results3[i].partid)
+                send_tweet({"tweetid":tweetid,"topid":topid,"topic":results2[0].title},ids);
+              }
+            });*/
             /*
             if(registrationIds.length > 0){
               send_tweet({"tweetid":tweetid,"topid":topid,"topic":results2[0].query});

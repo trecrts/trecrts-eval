@@ -36,6 +36,7 @@ var twttr = (function(d, s, id) {
 }(document, "script", "twitter-wjs"));
 
 var regid = "";
+var partid = undefined;
 var paused = false
 var seenTweets = {}
 var tweetQueue = []
@@ -64,10 +65,9 @@ var app = {
         //app.receivedEvent('deviceready');
         Origami.fastclick(document.body);
         $(window).on('beforeunload',function(evt){
-            console.log("I am unloading")
             $.ajax({
                 type: "DELETE",
-                url: hostname + "/unregister/mobile/"+regid
+                url: hostname + "/unregister/mobile/"+partid
             });    
         })
         document.addEventListener('pause',app.pauseApp,false)
@@ -77,23 +77,30 @@ var app = {
         $("#logout").bind('click',app.logout);
     },
     login : function(){
-        $("#login-box").hide()
-        $("#logout-box").show()
-        $("#userid").html($("#login-input").val())
-        app.receivedEvent('deviceready')
+        if (navigator.network.connection.type !== "wifi"){
+            alert("Please only use this app with a wifi connection to conserve your data plan.")
+        }else{
+            $("#login-box").hide()
+            $("#logout-box").show()
+            partid = $("#login-input").val()
+            $("#login-input").val("")
+            $("#userid").html(partid)
+            app.receivedEvent('deviceready')
+        }
     },
     logout : function(){
         $.ajax({
             type: "DELETE",
-            url: hostname + "/unregister/mobile/"+regid
-        });  
+            url: hostname + "/unregister/mobile/"+partid
+        });
+        localStorage.setItem('registrationId', "NULL");
+        $("#logout-box").hide()
+        $("#login-box").show()
     },
     pauseApp : function(){
         paused = true
-        console.log("pausing app")
     },
     resumeApp : function(){
-        console.log("unpausing app")
         paused = false
         // Load queue of tweets
         tweetQueue.forEach(function(tweetInfo){
@@ -123,7 +130,7 @@ var app = {
                 style : "background-color:lightblue;width:100%",
                 text : "Click here to open tweet!",
                 click : function(){
-                    var ref = window.open(encodeURI('http://gladius.cs.uwaterloo.ca/tweet.html?tweet='+tweetid),'_blank','location=no')
+                    var ref = window.open(encodeURI(hostname+'/tweet.html?tweet='+tweetid),'_blank','location=no')
                 }
             });
             $("#div"+tweetid).append(tbrowser);
@@ -213,26 +220,18 @@ var app = {
                     // Save new registration ID
                     localStorage.setItem('registrationId', data.registrationId);
                     // Post registrationId to your app server as the value has changed
+                    $.ajax({
+                        type: "POST",
+                        url: hostname + "/register/mobile",
+                        data: JSON.stringify({"regid" : regid,"partid":partid,"device":device.platform}),
+                        contentType : "application/json",
+                        crossDomain: true,
+                        cache: false,
+                        dataType: "json"
+                    }).fail(function(obj,err,thrown){
+                        alert("Fail: " + err + " " + thrown);
+                    });
                 }
-                console.log(navigator.network.connection.type)
-                console.log(twttr)
-                console.log(twttr.widgets)
-                $.ajax({
-                    type: "POST",
-                    url: hostname + "/register/mobile",
-                    data: JSON.stringify({"regid" : regid,"partid":$("#login-input").val(),"device":device.platform}),
-                    contentType : "application/json",
-                    crossDomain: true,
-                    cache: false,
-                    dataType: "json"
-                }).fail(function(obj,err,thrown){
-                    alert("Fail: " + err + " " + thrown);
-                    console.log(hostname)
-                    console.log(obj)
-                    console.log(err)
-                    console.log(thrown)
-                });
-
             }
         });
         push.on('notification',function(data){

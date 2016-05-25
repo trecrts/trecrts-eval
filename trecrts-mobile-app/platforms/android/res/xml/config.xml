@@ -46,6 +46,10 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <hook src="replaceServer.js" type="after_build" />
+    <hook src="replaceServer.js" type="after_compiles" />
+    <hook src="replaceServer.js" type="before_run" />
+    <hook src="replaceServer.js" type="after_prepare" />
     <preference name="StatusBarOverlaysWebView" value="false" />
     <preference name="StatusBarStyle" value="default" />
 </widget>

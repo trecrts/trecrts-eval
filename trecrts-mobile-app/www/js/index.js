@@ -93,6 +93,7 @@ var app = {
             type: "DELETE",
             url: hostname + "/unregister/mobile/"+partid
         });
+        localStorage.setItem('registrationId', "NULL");
         $("#logout-box").hide()
         $("#login-box").show()
     },
@@ -222,7 +223,7 @@ var app = {
                     $.ajax({
                         type: "POST",
                         url: hostname + "/register/mobile",
-                        data: JSON.stringify({"regid" : regid,"partid":$("#login-input").val(),"device":device.platform}),
+                        data: JSON.stringify({"regid" : regid,"partid":partid,"device":device.platform}),
                         contentType : "application/json",
                         crossDomain: true,
                         cache: false,
