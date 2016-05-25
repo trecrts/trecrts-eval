@@ -140,6 +140,28 @@ LOCK TABLES `requests_template` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `seen_template`
+--
+
+DROP TABLE IF EXISTS `seen_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `seen_template` (
+  `tweetid` text,
+  KEY `tweetid` (`tweetid`(40))
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `seen_template`
+--
+
+LOCK TABLES `seen_template` WRITE;
+/*!40000 ALTER TABLE `seen_template` DISABLE KEYS */;
+/*!40000 ALTER TABLE `seen_template` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `topic_assignments`
 --
 
@@ -198,4 +220,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-05-25 11:00:01
+-- Dump completed on 2016-05-25 14:04:24
