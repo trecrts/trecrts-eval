@@ -82,7 +82,7 @@ module.exports = function(io){
   function validate_client_or_participant(db,uniqid,cb){
     validate_client(db,uniqid,function(errors,results){
       if(errors || results.length === 0){
-        validate_participant(db,partid,cb);
+        validate_participant(db,uniqid,cb);
       }else{
         cb(errors,results);
       }
@@ -96,7 +96,7 @@ module.exports = function(io){
     var partid = req.params.partid;
     var db = req.db;
     validate_participant(db,partid,function(errors0,results0){
-      if (errors || results.length === 0){
+      if (errors0 || results0.length === 0){
         res.status(500).json({'message': 'Unable to validate client: ' + clientid})
         return;
       }else{
@@ -288,13 +288,13 @@ module.exports = function(io){
     var uniqid = req.params.uniqid;
     var topid = req.params.topid;
     validate_client_or_participant(db,uniqid,function(errors0,results0){
-      if(errors || results.length === 0){
-        res.status(500).({'message':'Unable to validate ID:' + uniqid});
+      if(errors0 || results0.length === 0){
+        res.status(500).json({'message':'Unable to validate ID:' + uniqid});
         return;
       }
-      db.query('select count(*) as cnt where topic_assignments where topid = ?;',topid,function(errors1,results1){
+      db.query('select count(*) as cnt from topic_assignments where topid = ?;',topid,function(errors1,results1){
         if(errors1 || results1.length === 0){
-          res.status(500).json({'message';'Error in determining topic availability.'});
+          res.status(500).json({'message':'Error in determining topic availability.'});
           return;
         }else if(results1[0].cnt >= MAX_ASS){
           res.status(404).json({'message':'Sufficient assessors'});
@@ -305,8 +305,8 @@ module.exports = function(io){
     });
   });
   router.post('/topics/interest/:partid',function(req,res){
-    var partid = req.body.partid;
-    var topids = req.body.topids;
+    var partid = req.params.partid;
+    var topids = req.body;
     var db = req.db;
     validate_participant(db,partid,function(errors0,results0){
       if(errors0 || results0.length === 0){
@@ -321,8 +321,8 @@ module.exports = function(io){
           stmt += '(\'' + topids[i] + '\',\'' + partid + '\')';
         }  
       }
-      db.query('insert into topic_assignments (topid,partid) values ' + [stmt],function(errors0,results0){
-        if (errors)
+      db.query('insert into topic_assignments (topid,partid) values ' + [stmt],function(errors1,results1){
+        if (errors1)
           res.status(500).json({'message': 'Unable to insert topics for partid:' + partid});
         res.status(204).send()
       });
@@ -379,11 +379,10 @@ module.exports = function(io){
     var db = req.db;
     validate_client_or_participant(db,uniqid,function(errors,results){
       if(errors || results.length === 0){
-        console.log(errors);
         res.status(500).json({'message':'Unable to validate ID: ' + uniqid});
         return;
       }
-      db.query('select topid,query from topics;',function(errors1,results1){
+      db.query('select topid,title,body from topics;',function(errors1,results1){
         if(errors1){
           res.status(500).json({'message':'Unable to retrieve topics for client: ' + uniqid});
         }else{

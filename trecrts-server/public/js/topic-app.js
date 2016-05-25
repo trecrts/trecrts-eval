@@ -7,21 +7,23 @@ trecapp.controller('TopicCtrl', ['$scope', '$http',
     $scope.uniqid = ""
     $scope.interested = [];
     $scope.validate = function(){
+      console.log('Clicked')
       $http.get('/topics/'+$scope.uniqid)
       .success(function(data){
+
         $scope.validated = true;
         $scope.topics = data;
       })
-      .fail(function(resp){
+      .error(function(resp){
         alert("Validation failed: " + resp.message);
       });
     };
     $scope.requestTopics = function(){
-      $http.post('/topics/interest/'+$scope.uniqid,JSON.stringify(interested))
+      $http.post('/topics/interest/'+$scope.uniqid,JSON.stringify($scope.interested))
       .success(function(resp){
         alert("Topics successfully requested! You can now use the judging app.");
       })
-      .fail(function(resp){
+      .error(function(resp){
         alert("Unable to request topics: " + resp.message);
       });
     };
@@ -31,11 +33,12 @@ trecapp.controller('TopicCtrl', ['$scope', '$http',
         .success(function(){
           $scope.interested.push(topid);
         })
-        .fail(function(){
-          angular.forEarch(topics,function(idx,topicObj){
+        .error(function(resp){
+          console.log(resp);
+          angular.forEarch($scope.topics,function(idx,topicObj){
             if(topicObj === topid){
-              topics[idx].disabled = true;
-              topics[idx].checked = false;
+              $scope.topics[idx].disabled = true;
+              $scope.topics[idx].checked = false;
             }
           });
         });
