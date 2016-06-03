@@ -220,4 +220,31 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+--
+-- Table structure for table `log_table`
+--
+
+DROP TABLE IF EXISTS `log_table`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_table` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `level` varchar(45) NOT NULL,
+  `message` text NOT NULL,
+  `timestamp` datetime NOT NULL,
+  `meta` varchar(255) DEFAULT NULL,
+  `hostname` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id` (`id`,`level`,`message`(100),`meta`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `log_table`
+--
+
+LOCK TABLES `log_table` WRITE;
+/*!40000 ALTER TABLE `log_table` DISABLE KEYS */;
+/*!40000 ALTER TABLE `log_table` ENABLE KEYS */;
+UNLOCK TABLES;
 -- Dump completed on 2016-05-25 14:04:24
