@@ -49,23 +49,24 @@ This submits a system's daily digest set of tweets. Can be done in batches but o
     + This is used for bookkeeping/rate-limiting purposes
 
 Request the relevance assessment for  a (tweet,topic) pair. Returns a 200 status code and a JSON object containing:
-`{'tweetid':tweetid,'topid':topid,'rel':rel}`, where rel is either -1 (not relevant), 1 (relevance), and 0 (unjudged).
+`{"tweetid":tweetid,"topid":topid,"rel":rel}`, where rel is either -1 (not relevant), 1 (relevance), and 0 (unjudged).
 The tweet identifier and topic identifier are repeated for verification purposes.
 
 ## Mobile Assessor Endpoints
 
 ### POST /register/mobile
-  - Request body a JSON object containing:`{"regid":"GCM registration id"}`
+  - Request body a JSON object containing:`{"regid":"Push notification id","partid" : "The participant id", "deviceid" : "iOS and/or Android"}`
     + used for pushing tweets to the device
 
 Register an instance of the mobile app so that we can push topics and tweets to the mobile phone.
-This will eventually return a JSON object containing the participant identifier which will be
-used for bookkeeping.
+Users should specify their participant id as a means of authentication to receive push notifications. 
+The deviceid field is used to determine which style of push notification to use.
 
-### POST /tweet/:topid/:tweetid/:rel
+### POST /tweet/:topid/:tweetid/:rel/:partid
   - **:topid** specifies the topic identifier
   - **:tweetid** specifies the tweet identifier supplied by the Twitter Streaming API 
   - **:rel** is the relevance assessment (-1 or 1) of tweet to the topic
+  - **:partid** is the participant identifier used to track assessments by each mobile assessor
 
 Mobile app has submited a relevance assessment for a (tweet,topic) pair for assessment. 
 Returns a 204 status code on success.
