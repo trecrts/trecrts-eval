@@ -6,19 +6,22 @@ Resource URL will depend on your broker location. We report only the common suff
 ## Client Endpoints
 
 ### POST /register/system
-  - Request body a JSON object containing:`{"groupid":"trec group identifier"}`
+  - Request body a JSON object containing:`{"groupid":"trec group identifier","alias" : "system alias"}`
     + used for validation
 
-Register a client system using the group identifier provided in the request body
+Register a client system using the group identifier provided in the request body and aliased with the given
+name for simplicity in TREC reporting.
 Returns a JSON object of the client identifier to be used by the system when making requests,
 e.g., `{"clientid":"foobar123"}`.
 
-#### GET /topics/:clientid
+
+### GET /topics/:clientid
   - **:clientid** is the client's identifier that was returned when the system was registered
     + This is used for bookkeeping/rate-limiting purposes
 
-Client is requesting the current topics to process. This is a JSON array of pairs of topic identifier (topid)
-and query (the information need). For example, `[{"topid":"test","query":"birthday"}]`.
+Client is requesting the current topics to process. This is a JSON array of pairs of topic identifier (topid), the 
+TREC title (the information need), and the body (which may be the description and/or narrative in a traditional TREC topic).
+For example, `[{"topid":"test","title":"birthday","body" : "Tweets pertaining to birthdays, including wishing happy birthday."}]`.
 
 ### POST /tweet/:topid/:tweetid/:clientid
   - **:topid** specifies the topic identifier
