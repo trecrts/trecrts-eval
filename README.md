@@ -27,7 +27,8 @@ Details for the Broker API can be found here[https://github.com/aroegies/trecrts
     + Create a trec_rts database
     + Load the template from trecrts-server/rts.db.template into the DB
     + Add appropriate group identifiers to the groups table
-    + Add any new topics to the topics table and creating the corresponding judgements table for the topic based upon the judgements_template table
+    + Add any new topics to the topics table and creating the corresponding judgements table and seen table for the topic based upon the judgements_template table and seen_template respectively
+      * For example, create table judgements_MBFoo like judgements_template; and create table seen_MBFoo like seen_template;
 
 ### Running the Broker
   - Standard Express.js invocation, `npm start`
