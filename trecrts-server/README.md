@@ -1,58 +1,56 @@
-# Broker REST(ful) API
-
-Resource URL will depend on your broker location. We report only the common suffixes.
-
+# TREC RTS Evaluation Broker REST(ful) API
 
 ## Client Endpoints
 
 ### POST /register/system
-  - Request body a JSON object containing:`{"groupid":"trec group identifier","alias" : "system alias"}`
-    + used for validation
 
-Register a client system using the group identifier provided in the request body and aliased with the given
-name for simplicity in TREC reporting.
-Returns a JSON object of the client identifier to be used by the system when making requests,
-e.g., `{"clientid":"foobar123"}`.
+- Request body should be a JSON object as follows: `{"groupid":"trec group identifier","alias":"system alias"}`
+- The `groupid` will be provided by the organizers.
+- The `alias` is a human-friendly identifier that you specify to help identify the client, e.g., `WaterlooBaseline`. We will use this alias as the "runid" to report results (e.g., in the track overview paper), so usual TREC rules apply (e.g., no spaces).
 
+Use this API endpoint to register a client with the evaluation broker.
+The API call will return a JSON object of the client id to be used by the system when making requests, e.g., `{"clientid":"abcdefghijk"}`.
+
+Note that each call to this API endpoint will return a unique client id. Therefore, for each individual experimental run, you should request a separate client id.
+
+You can manually test this API with `curl` as follows:
+
+```
+curl -H 'Content-Type: application/json' --data '{"groupid":"mygroup","alias":"MyBaseline"}' hostname.com/register/system
+```
 
 ### GET /topics/:clientid
-  - **:clientid** is the client's identifier that was returned when the system was registered
-    + This is used for bookkeeping/rate-limiting purposes
 
-Client is requesting the current topics to process. This is a JSON array of pairs of topic identifier (topid), the 
+- **:clientid** is the client id that was returned by the broker above. This is used for bookkeeping/rate-limiting purposes.
+
+Use this API endpoint to request the topics to be evaluated.
+This is a JSON array of pairs of topic identifier (topid), the 
 TREC title (the information need), and the body (which may be the description and/or narrative in a traditional TREC topic).
 For example, `[{"topid":"test","title":"birthday","body" : "Tweets pertaining to birthdays, including wishing happy birthday."}]`.
 
+You can manually test this API with `curl` as follows:
+
+```
+curl -H 'Content-Type: application/json' hostname.com/topics/abcdefghijk
+```
+
 ### POST /tweet/:topid/:tweetid/:clientid
-  - **:topid** specifies the topic identifier
-  - **:tweetid** specifies the tweet identifier supplied by the Twitter Streaming API 
-  - **:clientid** is the client's identifier that was returned when the system was registered
-    + This is used for bookkeeping/rate-limiting purposes
 
-Submit a (tweet,topic) pair for assessment. Returns a 204 status code on success.
+- **:topid** specifies the topic identifier.
+- **:tweetid** specifies the id of the tweet from the Twitter Streaming API that was identified as being relevant to the topic.
+- **:clientid** is the client's identifier that was returned when the system was registered. This is used for bookkeeping/rate-limiting purposes.
 
-### POST /tweets/:topid/:clientid
-  - **:topid** specifies the topic identifier
-  - **:clientid** is the client's identifier that was returned when the system was registered
+Use this API endpoint to submit a tweet for assessment with respect to a particular topic. Returns a 204 status code on success.
 
-The body of the request should contain a JSON object with a field denoted 'tweets' with a JSON array of tweetid strings,
-e.g., '{"tweets":["123","456"]}'.
+You can manually test this API with `curl` as follows:
 
-This submits a system's daily digest set of tweets. Can be done in batches but only the first X will be used for evaluation (X is given in the guidelines).
-
- Returns a 204 status code on success.
-
-### GET /judge/:topid/:tweetid/:clientid
-  - **:topid** specifies the topic identifier
-  - **:tweetid** specifies the tweet identifier supplied by the Twitter Streaming API 
-  - **:clientid** is the client's identifier that was returned when the system was registered
-    + This is used for bookkeeping/rate-limiting purposes
-
-Request the relevance assessment for  a (tweet,topic) pair. Returns a 200 status code and a JSON object containing:
-`{"tweetid":tweetid,"topid":topid,"rel":rel}`, where rel is either -1 (not relevant), 1 (relevance), and 0 (unjudged).
-The tweet identifier and topic identifier are repeated for verification purposes.
+```
+curl -X POST -H 'Content-Type: application/json' hostname.com/tweet/MBXXX/738418531520352258/abcdefghijk
+```
 
 ## Mobile Assessor Endpoints
+
+Note that these API endpoints are documented for completeness only. System participants will not need to use these APIs.
 
 ### POST /register/mobile
   - Request body a JSON object containing:`{"regid":"Push notification id","partid" : "The participant id", "deviceid" : "iOS and/or Android"}`
