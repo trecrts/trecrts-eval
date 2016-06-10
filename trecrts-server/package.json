@@ -12,10 +12,11 @@
     "jade": "~1.9.1",
     "morgan": "~1.5.1",
     "serve-favicon": "~2.2.0",
-    "node-gcm": "latest",
+    "node-gcm": "0.14.0",
     "mysql" : "latest",
     "socket.io" : "latest",
     "apn" : "latest",
-    "winston" : "latest"
+    "winston" : "latest",
+    "winston-mysql-transport":"latest"
   }
 }
