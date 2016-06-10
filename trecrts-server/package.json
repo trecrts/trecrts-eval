@@ -16,6 +16,7 @@
     "mysql" : "latest",
     "socket.io" : "latest",
     "apn" : "latest",
-    "winston" : "latest"
+    "winston" : "latest",
+    "winston-mysql-transport" : "latest"
   }
 }
