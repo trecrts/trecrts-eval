@@ -68,10 +68,13 @@ var app = {
             $.ajax({
                 type: "DELETE",
                 url: hostname + "/unregister/mobile/"+partid
-            });    
+            });  
+            localStorage.setItem('registrationId', "NULL");
+            $("#logout-box").hide()
+            $("#login-box").show()  
         })
         document.addEventListener('pause',app.pauseApp,false)
-        document.addEventListener('reisgn',app.pauseApp,false) // iOS specific event similar to pause
+        document.addEventListener('resign',app.pauseApp,false) // iOS specific event similar to pause
         document.addEventListener('resume',app.resumeApp,false) 
         $("#login").bind('click',app.login);
         $("#logout").bind('click',app.logout);
@@ -114,7 +117,7 @@ var app = {
 
             $.ajax({
                 type: "POST",
-                url: hostname + "/judge/"+topid+"/"+tweetid+"/"+rel
+                url: hostname + "/judge/"+topid+"/"+tweetid+"/"+rel+"/"+partid
             });
         }catch(err){alert('RM: ' + err.message);}
     },
@@ -163,7 +166,8 @@ var app = {
             });
             $("#div"+tweetid).append(relb); 
             $("#div"+tweetid).append(nrelb);
-            $("#div"+tweetid).append(repb)             
+            $("#div"+tweetid).append(repb)
+            var sep = $('<div />')             
         }else{
             twttr.widgets.createTweet(tweetid,document.getElementById('div'+tweetid),{})
             .then(function(){

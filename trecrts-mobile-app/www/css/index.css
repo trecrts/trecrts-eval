@@ -102,6 +102,7 @@ div.tweet-div{
   -webkit-column-count: 3;
   -moz-column-count: 3;
   column-count: 3;
+  border-bottom:2px solid lightblue;
 }
 span.rel{
   color : green;

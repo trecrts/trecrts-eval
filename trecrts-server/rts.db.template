@@ -196,9 +196,10 @@ DROP TABLE IF EXISTS `topics`;
 CREATE TABLE `topics` (
   `topid` varchar(20) NOT NULL,
   `title` text,
-  `body` text,
+  `description` text,
+  `narrative` text,
   PRIMARY KEY (`topid`),
-  KEY `topid` (`topid`,`title`(40),`body`(40))
+  KEY `topid` (`topid`,`title`(40),`description`(40),`narrative`(40))
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

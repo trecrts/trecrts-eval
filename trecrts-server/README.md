@@ -26,7 +26,7 @@ curl -H 'Content-Type: application/json' --data '{"groupid":"mygroup","alias":"M
 Use this API endpoint to request the topics to be evaluated.
 This is a JSON array of pairs of topic identifier (topid), the 
 TREC title (the information need), and the body (which may be the description and/or narrative in a traditional TREC topic).
-For example, `[{"topid":"test","title":"birthday","body" : "Tweets pertaining to birthdays, including wishing happy birthday."}]`.
+For example, `[{"topid":"test","title":"birthday","description" : "Tweets pertaining to birthdays, including wishing happy birthday.","narrative" : "A narrative about birthdays."}]`.
 
 You can manually test this API with `curl` as follows:
 

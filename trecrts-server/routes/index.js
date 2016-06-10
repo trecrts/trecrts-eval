@@ -9,7 +9,7 @@ module.exports = function(io){
   var sender = new gcm.Sender(push_auths.gcm);
   var registrationIds = [];
   var regIdx = 0;
-  const RATE_LIMIT = 1000;
+  const RATE_LIMIT = 10;
   const MAX_ASS = 3;
   function genID(){
     var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -117,8 +117,6 @@ module.exports = function(io){
     // At least one reg id required
     db.query('select * from participants where partid = ?;',partid,function(errors0,results0){
       if(errors0 || results0.length === 0){
-        console.log(partid)
-        console.log("Here")
         res.status(500).json({'message':'Unable to identify participant: ' + partid});
         return;
       }
@@ -154,8 +152,9 @@ module.exports = function(io){
       */
     });
   });
-  
-  router.post('/tweets/:topid/:clientid',function(req,res){
+
+// NOT USED FOR RTS 2016  
+/*  router.post('/tweets/:topid/:clientid',function(req,res){
     var topid = req.params.topid;
     var clientid  = req.params.clientid;
     var tweets = req.body.tweets;
@@ -167,7 +166,7 @@ module.exports = function(io){
       }
       stmt = ""
       for (var i = 0; i < tweets.length; i++){
-        if (! isValidTweetID(tweets[i])){
+        if (! isValidTweet(tweets[i])){
           res.status(404).json({'message': 'Invalid tweetid: ' + tweets[i]});
         }
         if (i !== 0){
@@ -182,7 +181,8 @@ module.exports = function(io){
         res.status(204).send()
       });
     });
-  });
+  });*/
+
   // TODO: Need to enforce topid is valid
   router.post('/tweet/:topid/:tweetid/:clientid',function(req,res){
     var topid = req.params.topid;
@@ -249,12 +249,12 @@ module.exports = function(io){
     });
   });
   
-  router.post('/judge/:topid/:tweetid/:rel', function(req,res){
+  router.post('/judge/:topid/:tweetid/:rel/:partid', function(req,res){
     var topid = req.params.topid;
     var tweetid = req.params.tweetid;
     var rel = req.params.rel;
-    //var partid = req.body.partid;
-    var partid = "foo";
+    var partid = req.params.partid;
+    //var partid = "foo";
     var db = req.db;
     db.query('insert judgements_'+topid+'(assessor,tweetid,rel) values (?,?,?);',[partid,tweetid,rel],function(errors,results){
       if(errors){
@@ -268,7 +268,8 @@ module.exports = function(io){
     });
   });
  
-  router.get('/judge/:topid/:tweetid/:clientid', function(req,res){
+// NOT USED IN RTS 2016
+/*  router.get('/judge/:topid/:tweetid/:clientid', function(req,res){
     var clientid = req.params.clientid;
     var topid = req.params.topid;
     var tweetid = req.params.tweetid;
@@ -287,10 +288,11 @@ module.exports = function(io){
         res.json({'tweetid':tweetid,'topid':topid,'rel':results[0].rel});
       });
     });
-  });
+  });*/
   
   router.post('/register/system/', function(req,res){
     var groupid = req.body.groupid;
+    var alias = req.body.alias;
     var db = req.db;
     var clientid = genID();
     validate_group(db,groupid,function(errors,results){
@@ -298,7 +300,10 @@ module.exports = function(io){
         res.status(500).json({'message':'Unable to register a client for group: ' + groupid});
         return;
       }
-      db.query('insert clients (groupid,clientid,ip) values (?,?,?);',[groupid,clientid,req.ip], function(errors1,results1){
+      if (alias === undefined){
+        alias = "NULL"
+      }
+      db.query('insert clients (groupid,clientid,ip,alias) values (?,?,?,?);',[groupid,clientid,req.ip,alias], function(errors1,results1){
         if(errors1){
           res.status(500).json({'message':'Unable to register system.'});
           return;
@@ -400,6 +405,7 @@ module.exports = function(io){
     var partid = req.params.partid
     var idx = find_user(partid)
     if (idx > -1) registrationIds.splice(idx,1)
+    res.status(204).send();
   });
   router.get('/topics/:uniqid', function(req,res){
     var uniqid = req.params.uniqid;
@@ -409,7 +415,7 @@ module.exports = function(io){
         res.status(500).json({'message':'Unable to validate ID: ' + uniqid});
         return;
       }
-      db.query('select topid,title,body from topics;',function(errors1,results1){
+      db.query('select topid,title,description, narrative from topics;',function(errors1,results1){
         if(errors1){
           res.status(500).json({'message':'Unable to retrieve topics for client: ' + uniqid});
         }else{
