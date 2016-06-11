@@ -23,10 +23,25 @@ curl -H 'Content-Type: application/json' --data '{"groupid":"mygroup","alias":"M
 
 - **:clientid** is the client id that was returned by the broker above. This is used for bookkeeping/rate-limiting purposes.
 
-Use this API endpoint to request the topics to be evaluated.
-This is a JSON array of pairs of topic identifier (topid), the 
-TREC title (the information need), and the body (which may be the description and/or narrative in a traditional TREC topic).
-For example, `[{"topid":"test","title":"birthday","description" : "Tweets pertaining to birthdays, including wishing happy birthday.","narrative" : "A narrative about birthdays."}]`.
+Use this API endpoint to request the "interest profiles" (also called "topics") to be evaluated.
+An interest profile is a JSON-formatted structure that contains the
+same information as a "traditional" *ad hoc* topic:
+
+```
+  { "id" : "MB246",
+    "title" : "Greek international debt crisis",
+    "description" : "Find information related to the crisis surrounding the Greek debt to international creditors, and the consequences of their possible withdrawal from the European Union.",
+    "narrative" : "Given the continuing crisis over the Greek debt to international creditors, such as the International Monetary Fund (IMF), European Central Bank (ECB), and the European Commission, the user is interested in information on how this debt is being handled, including the possible withdrawal of Greece from the euro zone, and the consequences of such a move."
+  }
+```
+
+The "title" contains a short description of the information need,
+similar to what users would type into a search engine. The
+"description" and "narrative" are sentence- and paragraph-long
+elaborations of the information need, respectively.
+The API will return a list of these JSON structures.
+
+Please do not poll the API for topics more than once every hour.
 
 You can manually test this API with `curl` as follows:
 
