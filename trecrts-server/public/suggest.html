@@ -11,16 +11,22 @@
       $("form").submit(function(e){
         e.preventDefault()
         var data = {}
+        var uniqid = ""
         $.each($(this).serializeArray(),function(){
-          data[this.name]=this.value
+	  if (this.name === "uniqid"){
+            uniqid = this.value
+          }else{
+            data[this.name]=this.value
+          }
         });
         $.ajax({
-          type : "POST"
-          url : "/topic/suggest",
-          data JSON.stringify(data),
+          type : "POST",
+          url : "/topics/suggest/"+uniqid,
+          data: data,
+          dataType: "application/json",
           success : function(){
             alert("Topic suggested!");
-            $(this).trriger("reset");
+            $("#suggestion").trigger("reset");
           },
           fail : function(resp){
             alert("Suggestion failed: " + resp.message);
