@@ -65,11 +65,11 @@ var app = {
         //app.receivedEvent('deviceready');
         Origami.fastclick(document.body);
         $(window).on('beforeunload',function(evt){
-            $.ajax({
+/*            $.ajax({
                 type: "DELETE",
                 url: hostname + "/unregister/mobile/"+partid
             });  
-            localStorage.setItem('registrationId', "NULL");
+            localStorage.setItem('registrationId', "NULL");*/
             $("#logout-box").hide()
             $("#login-box").show()  
         })
@@ -86,7 +86,7 @@ var app = {
             $("#login-box").hide()
             $("#logout-box").show()
             partid = $("#login-input").val()
-            $("#login-input").val("")
+            //$("#login-input").val("")
             $("#userid").html(partid)
             app.receivedEvent('deviceready')
         }
