@@ -37,8 +37,8 @@ module.exports = function(io){
     message.addData('topic',String(tweet.topic))
     message.addData('content-available', '1');
     sender.send(message, { registrationTokens: [ id ] }, function (err, response) {
-        if(err) console.error(err);
-       //else    console.log(response);
+       if(err) console.error("Sending error: " + err);
+       else    console.log("Sending response: " + response);
     });
   }
  function send_tweet_apn(tweet,id){
@@ -380,21 +380,12 @@ module.exports = function(io){
   router.post('/topics/suggest/:uniqid',function(req,res){
     var db = req.db;
     var uniqid = req.params.uniqid;
-    var topics = req.body.topics;
     validate_client_or_participant(db,uniqid,function(errors0,results0){
       if(errors0 || results0.length === 0){
         res.status(500).json({'message':'Unable to validate: ' + uniqid})
         return;
       }
-      stmt = ""
-      for (var i = 0; i < topics.length; i++){
-        if (i !== 0){
-          stmt += ',(\'' + topics[i].title + '\',\'' + topics[i].desc + '\')';
-        } else {
-          stmt += '(\'' + topics[i].title + '\',\'' + topics[i].desc + '\')';
-        }  
-      }
-      db.query('insert into candidate_topics (title,desc) values ' + [stmt],function(errors1,results1){
+      db.query('insert into candidate_topics (title,description) values (?,?);',[req.body.title,req.body.desc],function(errors1,results1){
         if (errors1)
           res.status(500).json({'message': 'Unable to insert topic suggestions for:' + uniqid});
         res.status(204).send()
