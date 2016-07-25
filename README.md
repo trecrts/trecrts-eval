@@ -8,12 +8,11 @@ TREC participants write clients that interact with a broker run by the coordinat
 all communication with mobile assessors (i.e., humans with the mobile assessing application on their phone).
 The assessments rendered by the participants are then made available to the clients through a pull request.
 
+**Note that for the mobile assessment application and the broker, participants should not run their own!**
+
 Details for the Broker API can be found here[https://github.com/aroegies/trecrts-tools/tree/master/trecrts-server].
 
-
-
-
-## Broker Server
+## Broker Server (NOTE: Participants do not run this -- Track Coordinators do)
 
 ### Requirements
 - Node.js v5.0.0+
@@ -38,7 +37,7 @@ Details for the Broker API can be found here[https://github.com/aroegies/trecrts
 - The broker comes supplied with a web app, located at hostname:port/index.html, that connects to the broker to simulate the mobile assessor interface in the web browser. This may be more convenient for testing clients than deploying to phones.
   + Web app assessments are functionally annonymous 
 
-## Mobile Assessment App
+## Mobile Assessment App (NOTE: Participants do not run this -- Track Coordinators do)
 
 ### Requirements
 
