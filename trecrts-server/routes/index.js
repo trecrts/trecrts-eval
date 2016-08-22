@@ -8,9 +8,11 @@ module.exports = function(io){
 
   var sender = new gcm.Sender(push_auths.gcm);
   var registrationIds = [];
+  var loaded = false;
   var regIdx = 0;
   const RATE_LIMIT = 10;
   const MAX_ASS = 3;
+  const MAX_CLIENTS = 3;
   function genID(){
     var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     var ID = '';
@@ -134,7 +136,7 @@ module.exports = function(io){
       }else{
          registrationIds[idx].conn = regid;
          registrationIds[idx].type = device
-         db.query('update participants set deviceid = ? where partid = ?;',[regid,partid],function(errors1,results1){
+         db.query('update participants set deviceid = ?, platform = ? where partid = ?;',[regid,partid,device],function(errors1,results1){
            if(errors1){
              console.log('Unable to update device for partid: ', partid, regid);
            }
@@ -194,57 +196,72 @@ module.exports = function(io){
         res.status(500).json({'message':'Could not validate client: ' + clientid})
         return;
       }
-      db.query('select count(*) as cnt from requests_'+clientid+' where topid = ? and submitted between CURDATE() and date_add(CURDATE(),INTERVAL 1 day);', [topid], function(errors0,results0){
-        if(errors0 || results0.length === 0){
-          res.status(500).json({'message':'Could not process request for topid: ' + topid + ' and ' + tweetid});
-          return;
-        }else if(results0[0].cnt >= RATE_LIMIT){
-          res.status(429).json({'message':'Rate limit exceeded for topid: ' + topid});
+      db.query('select topid from topics where topid = ?;',topid,function(terr,tres){
+        if(terr || tres.length === 0){
+          res.status(500).json({'message':'Invalid topic identifier: ' + topid});
           return;
         }
-        db.query('insert requests_' + clientid + ' (topid,tweetid) values (?,?);',[topid,tweetid], function(errors1,results1){
-          if(errors1 || results1.length === 0){
+
+        db.query('select count(*) as cnt from requests_'+clientid+' where topid = ? and submitted between CURDATE() and date_add(CURDATE(),INTERVAL 1 day);', [topid], function(errors0,results0){
+          if(errors0 || results0.length === 0){
             res.status(500).json({'message':'Could not process request for topid: ' + topid + ' and ' + tweetid});
             return;
+          }else if(results0[0].cnt >= RATE_LIMIT){
+            res.status(429).json({'message':'Rate limit exceeded for topid: ' + topid});
+            return;
           }
-          db.query('select count(*) as cnt from seen_'+topid+' where tweetid = ?;',tweetid,function(errors4,results4){
-            if(errors4){
-              console.log("Something bad happened: " + errors4);
-              res.status(500).json({'message':'could not process request for topid: ' + topid + ' and ' + tweetid});
+          db.query('insert requests_' + clientid + ' (topid,tweetid) values (?,?);',[topid,tweetid], function(errors1,results1){
+            if(errors1 || results1.length === 0){
+              res.status(500).json({'message':'Could not process request for topid: ' + topid + ' and ' + tweetid});
               return;
             }
-            // If we have seen the tweet before, do nothing
-            if(results4[0].cnt === 0){
-              // Otherwise send it out to be judged and then insert it
-              db.query('select title from topics where topid = ?;',topid,function(errors2,results2){
-                if(errors2 || results2.length === 0){
-                  console.log('Something went horribly wrong');
-                  res.status(500).json({'message':'could not process request for topid: ' + topid + ' and ' + tweetid});
-                  return;
-                }
-                var title = results2[0].title
-                db.query('select partid from topic_assignments where topid = ?;',topid,function(errors3,results3){
-                  if(errors3){
-                    console.log('Something went horribly wrong')
+            db.query('select count(*) as cnt from seen_'+topid+' where tweetid = ?;',tweetid,function(errors4,results4){
+              if(errors4){
+                console.log("Something bad happened: " + errors4);
+                res.status(500).json({'message':'could not process request for topid: ' + topid + ' and ' + tweetid});
+                return;
+              }
+              // If we have seen the tweet before, do nothing
+              if(results4[0].cnt === 0){
+                // Otherwise send it out to be judged and then insert it
+                db.query('select title from topics where topid = ?;',topid,function(errors2,results2){
+                  if(errors2 || results2.length === 0){
+                    console.log('Something went horribly wrong');
                     res.status(500).json({'message':'could not process request for topid: ' + topid + ' and ' + tweetid});
                     return;
                   }
-                  if (results3.length !== 0){
-                    var ids = []
-                    for(var idx = 0; idx < results3.length; idx++){
-                      ids.push(results3[idx].partid)
+                  var title = results2[0].title
+                  db.query('select partid from topic_assignments where topid = ?;',topid,function(errors3,results3){
+                    if(errors3){
+                      console.log('Something went horribly wrong')
+                      res.status(500).json({'message':'could not process request for topid: ' + topid + ' and ' + tweetid});
+                      return;
                     }
-                    send_tweet({"tweetid":tweetid,"topid":topid,"topic":title},ids);
-                  }
-                  db.query('insert into seen_'+topid+' (tweetid) values (?);',tweetid,function(errors5,results5){
-                    console.log(errors5)
+                    if(! loaded){
+                      loaded = true;
+                      db.query('select partid,deviceid,platform from participants;',function(parerror,parresults){
+                        for(var part in parresults){
+                          registrationIds.push({'partid':part.partid,'type':part.platform,'conn':part.deviceid});
+                        }
+                      });
+                    }
+                    if (results3.length !== 0){
+                      var ids = []
+                      for(var idx = 0; idx < results3.length; idx++){
+                        ids.push(results3[idx].partid)
+                      }
+                      send_tweet({"tweetid":tweetid,"topid":topid,"topic":title},ids);
+                    }
+                    db.query('insert into seen_'+topid+' (tweetid) values (?);',tweetid,function(errors5,results5){
+                      console.log(errors5)
+                    });
                   });
                 });
-              });
-            }
-          });
-          res.status(204).send();
-        });          
+              }
+            });
+            res.status(204).send();
+          });          
+        });
       });
     });
   });
@@ -303,14 +320,20 @@ module.exports = function(io){
       if (alias === undefined){
         alias = "NULL"
       }
-      db.query('insert clients (groupid,clientid,ip,alias) values (?,?,?,?);',[groupid,clientid,req.ip,alias], function(errors1,results1){
-        if(errors1){
-          res.status(500).json({'message':'Unable to register system.'});
-          return;
+      db.query('select count(*) as cnt from clients where groupid = ?;',[groupid],function(gerrors,gresults){
+        if (gresults[0].cnt < MAX_CLIENTS){
+	  db.query('insert clients (groupid,clientid,ip,alias) values (?,?,?,?);',[groupid,clientid,req.ip,alias], function(errors1,results1){
+            if(errors1){
+              res.status(500).json({'message':'Unable to register system.'});
+              return;
+            }
+            db.query('create table requests_'+clientid+' like requests_template;'); // Assume this works for now
+            //db.query('create table requests_digest_'+clientid+' like requests_template;'); // Assume this works for now
+           res.json({'clientid':clientid});
+          });
+        }else{
+          res.status(429).json({'message':'Too many client ids for group: ' + groupid});
         }
-        db.query('create table requests_'+clientid+' like requests_template;'); // Assume this works for now
-        db.query('create table requests_digest_'+clientid+' like requests_template;'); // Assume this works for now
-        res.json({'clientid':clientid});
       });
     });
   });
@@ -353,7 +376,7 @@ module.exports = function(io){
           stmt += '(\'' + topids[i] + '\',\'' + partid + '\')';
         }  
       }
-      db.query('insert into topic_assignments (topid,partid) values ' + [stmt],function(errors1,results1){
+      db.query('insert ignore into topic_assignments (topid,partid) values ' + [stmt],function(errors1,results1){
         if (errors1)
           res.status(500).json({'message': 'Unable to insert topics for partid:' + partid});
         res.status(204).send()
@@ -397,6 +420,24 @@ module.exports = function(io){
     var idx = find_user(partid)
     if (idx > -1) registrationIds.splice(idx,1)
     res.status(204).send();
+  });
+  router.get('/log/:clientid',function(req,res){
+    var clientid = req.params.clientid;
+    var db = req.db;
+    validate_client(db,clientid,function(errors,results){
+      if(errors || results.length === 0){
+        res.status(500).json({'message':'Unable to validate clientid:' + clientid});
+        return;
+      }
+      db.query('select * from requests_'+clientid+';',function(errors1,results1){
+        if(errors1){
+          res.status(500).json({'message':'Unable to retrieve log for: ' + clientid});
+          return;
+        }
+        res.status(200).json(results1);
+      });
+    });
+
   });
   router.get('/topics/:uniqid', function(req,res){
     var uniqid = req.params.uniqid;
