@@ -55,39 +55,31 @@ CREATE TABLE `groups` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `groups`
---
-
-LOCK TABLES `groups` WRITE;
-/*!40000 ALTER TABLE `groups` DISABLE KEYS */;
-INSERT INTO `groups` VALUES ('uwar','aroegies@uwaterloo.ca');
-/*!40000 ALTER TABLE `groups` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `judgements_template`
 --
 
-DROP TABLE IF EXISTS `judgements_template`;
+DROP TABLE IF EXISTS `judgements`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `judgements_template` (
+CREATE TABLE `judgements` (
   `assessor` text,
+  `topid` VARCHAR(40),
   `tweetid` text,
   `rel` int(11) DEFAULT '0',
   `submitted` datetime DEFAULT CURRENT_TIMESTAMP,
-  KEY `assessor` (`assessor`(40),`tweetid`(40),`rel`)
+  KEY `assessor` (`assessor`(40),`topid`,`tweetid`(40))
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `judgements_template`
+-- Dumping data for table `judgements`
 --
 
-LOCK TABLES `judgements_template` WRITE;
-/*!40000 ALTER TABLE `judgements_template` DISABLE KEYS */;
-/*!40000 ALTER TABLE `judgements_template` ENABLE KEYS */;
+LOCK TABLES `judgements` WRITE;
+/*!40000 ALTER TABLE `judgements` DISABLE KEYS */;
+/*!40000 ALTER TABLE `judgements` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -120,14 +112,15 @@ UNLOCK TABLES;
 -- Table structure for table `requests_template`
 --
 
-DROP TABLE IF EXISTS `requests_template`;
+DROP TABLE IF EXISTS `requests`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `requests_template` (
-  `topid` text,
+CREATE TABLE `requests` (
+  `topid` VARCHAR(40),
   `tweetid` text,
+  `clientid` varchar(12) DEFAULT NULL,
   `submitted` datetime DEFAULT CURRENT_TIMESTAMP,
-  KEY `topid` (`topid`(40),`tweetid`(40))
+  KEY `topid` (`topid`,`tweetid`(40),`clientid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -135,31 +128,32 @@ CREATE TABLE `requests_template` (
 -- Dumping data for table `requests_template`
 --
 
-LOCK TABLES `requests_template` WRITE;
+LOCK TABLES `requests` WRITE;
 /*!40000 ALTER TABLE `requests_template` DISABLE KEYS */;
 /*!40000 ALTER TABLE `requests_template` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `seen_template`
+-- Table structure for table `seen`
 --
 
-DROP TABLE IF EXISTS `seen_template`;
+DROP TABLE IF EXISTS `seen`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `seen_template` (
+CREATE TABLE `seen` (
   `tweetid` text,
-  KEY `tweetid` (`tweetid`(40))
+  `topid` VARCHAR(40),
+  KEY `tweetid` (`tweetid`(40),`topid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `seen_template`
+-- Dumping data for table `seen`
 --
 
-LOCK TABLES `seen_template` WRITE;
-/*!40000 ALTER TABLE `seen_template` DISABLE KEYS */;
-/*!40000 ALTER TABLE `seen_template` ENABLE KEYS */;
+LOCK TABLES `seen` WRITE;
+/*!40000 ALTER TABLE `seen` DISABLE KEYS */;
+/*!40000 ALTER TABLE `seen` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
