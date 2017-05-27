@@ -26,7 +26,7 @@ CREATE TABLE `clients` (
   `groupid` text,
   `clientid` varchar(12) DEFAULT NULL,
   `ip` varchar(30) DEFAULT NULL,
-  `register_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  `register_time` timestamp DEFAULT CURRENT_TIMESTAMP,
   `alias` text DEFAULT NULL,
   KEY `groupid` (`groupid`(40),`clientid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -68,7 +68,7 @@ CREATE TABLE `judgements` (
   `topid` VARCHAR(40),
   `tweetid` text,
   `rel` int(11) DEFAULT '0',
-  `submitted` datetime DEFAULT CURRENT_TIMESTAMP,
+  `submitted` timestamp DEFAULT CURRENT_TIMESTAMP,
   KEY `assessor` (`assessor`(40),`topid`,`tweetid`(40))
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -109,7 +109,7 @@ INSERT INTO `participants` VALUES ('batman','batman@batcave.org',NULL);
 UNLOCK TABLES;
 
 --
--- Table structure for table `requests_template`
+-- Table structure for table `requests`
 --
 
 DROP TABLE IF EXISTS `requests`;
@@ -119,18 +119,18 @@ CREATE TABLE `requests` (
   `topid` VARCHAR(40),
   `tweetid` text,
   `clientid` varchar(12) DEFAULT NULL,
-  `submitted` datetime DEFAULT CURRENT_TIMESTAMP,
+  `submitted` timestamp DEFAULT CURRENT_TIMESTAMP,
   KEY `topid` (`topid`,`tweetid`(40),`clientid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `requests_template`
+-- Dumping data for table `requests`
 --
 
 LOCK TABLES `requests` WRITE;
-/*!40000 ALTER TABLE `requests_template` DISABLE KEYS */;
-/*!40000 ALTER TABLE `requests_template` ENABLE KEYS */;
+/*!40000 ALTER TABLE `requests` DISABLE KEYS */;
+/*!40000 ALTER TABLE `requests` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -226,7 +226,7 @@ CREATE TABLE `log_table` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `level` varchar(45) NOT NULL,
   `message` text NOT NULL,
-  `timestamp` datetime NOT NULL,
+  `timestamp` timestamp NOT NULL,
   `meta` varchar(255) DEFAULT NULL,
   `hostname` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
