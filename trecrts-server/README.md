@@ -63,6 +63,20 @@ You can manually test this API with `curl` as follows:
 curl -X POST -H 'Content-Type: application/json' hostname.com/tweet/MBXXX/738418531520352258/abcdefghijk
 ```
 
+
+### POST /assessments/:topid/:clientid
+
+- **:topid** specifies the topic identifier.
+- **:clientid** is the client's identifier that was returned when the system was registered. This is used for bookkeeping/rate-limiting purposes.
+
+Use this API endpoint to get back live assessments for the tweets posted for this topic.
+
+You can manually test this API with `curl` as follows:
+
+```
+curl -X POST -H 'Content-Type: application/json' hostname.com/assessments/MBXXX/abcdefghijk
+```
+
 ## Mobile Assessor Endpoints
 
 Note that these API endpoints are documented for completeness only. System participants will not need to use these APIs.
