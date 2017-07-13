@@ -76,25 +76,13 @@ You can manually test this API with `curl` as follows:
 ```
 curl -X POST -H 'Content-Type: application/json' hostname.com/assessments/MBXXX/abcdefghijk
 ```
-
-## Mobile Assessor Endpoints
-
-Note that these API endpoints are documented for completeness only. System participants will not need to use these APIs.
-
-### POST /register/mobile
-  - Request body a JSON object containing:`{"regid":"Push notification id","partid" : "The participant id", "deviceid" : "iOS and/or Android"}`
-    + used for pushing tweets to the device
-
-Register an instance of the mobile app so that we can push topics and tweets to the mobile phone.
-Users should specify their participant id as a means of authentication to receive push notifications. 
-The deviceid field is used to determine which style of push notification to use.
-
-### POST /tweet/:topid/:tweetid/:rel/:partid
-  - **:topid** specifies the topic identifier
-  - **:tweetid** specifies the tweet identifier supplied by the Twitter Streaming API 
-  - **:rel** is the relevance assessment (-1 or 1) of tweet to the topic
-  - **:partid** is the participant identifier used to track assessments by each mobile assessor
-
-Mobile app has submited a relevance assessment for a (tweet,topic) pair for assessment. 
-Returns a 204 status code on success.
-
+The response will be JSON-formatted structure like this:
+```
+{
+    "judgements":[
+        {"topid":"FakeTopic","tweetid":"873202521656803329","rel":0,"submitted":"2017-06-22T11:14:04.000Z"},
+        {"topid":"FakeTopic","tweetid":"875784501338660865","rel":2,"submitted":"2017-06-21T15:09:32.000Z"}
+    ],
+    "last_pulled":"2017-07-12T18:49:04.000Z"
+}
+```
