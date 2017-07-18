@@ -11,7 +11,7 @@
 Use this API endpoint to register a client with the evaluation broker.
 The API call will return a JSON object of the client id to be used by the system when making requests, e.g., `{"clientid":"abcdefghijk"}`.
 
-Note that each call to this API endpoint will return a unique client id. Therefore, for each individual experimental run, you should request a separate client id.
+NOTE: Each call to this API endpoint will return a unique client id. Therefore, for each individual experimental run, you should request a separate client id. We are allowing 3 runs per team so you can call this endpoint 3 times and get back a unique client id. It is upto the teams to store this client id responsibly.
 
 You can manually test this API with `curl` as follows:
 
