@@ -16,7 +16,7 @@ NOTE: Each call to this API endpoint will return a unique client id. Therefore, 
 You can manually test this API with `curl` as follows:
 
 ```
-curl -H 'Content-Type: application/json' --data '{"groupid":"mygroup","alias":"MyBaseline"}' hostname.com/register/system
+curl -H 'Content-Type: application/json' --data '{"groupid":"mygroup","alias":"mygroup-run1"}' hostname.com/register/system
 ```
 
 ### GET /topics/:clientid
