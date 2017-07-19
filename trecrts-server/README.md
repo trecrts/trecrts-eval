@@ -86,3 +86,7 @@ The response will be JSON-formatted structure like this:
     "last_pulled":"2017-07-12T18:49:04.000Z"
 }
 ```
+Relevance ID to meaning:
+- 0 = non-relevant
+- 1 = relevant
+- 2 = redundant/duplicate
